@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Messaging / Requests — Kinetic Console</title>
+<style>
+  :root{
+    --bg:#f4f6f9; --panel:#fff; --ink:#1f2937; --muted:#6b7280;
+    --line:#e5e7eb; --accent:#2563eb; --accent-soft:#eff6ff;
+    --red:#dc2626; --red-soft:#fef2f2;
+    --green:#16a34a; --green-soft:#f0fdf4;
+    --amber:#d97706; --amber-soft:#fffbeb;
+    --purple:#7c3aed; --purple-soft:#f5f3ff;
+    --sidebar:#1f2937;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:var(--bg)}
+  .app{display:grid;grid-template-columns:220px 1fr;grid-template-rows:52px 1fr;height:100%}
+  header.top{grid-column:1/3;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:#111827;color:#fff}
+  header.top .brand{font-weight:600;display:flex;align-items:center;gap:10px}
+  header.top .support{font-size:13px;color:#9ca3af}
+  aside.nav{background:var(--sidebar);color:#cbd5e1;padding:12px 0;overflow:auto}
+  aside.nav .group{padding:8px 16px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#9ca3af}
+  aside.nav a{display:block;padding:8px 16px;color:#9ca3af;text-decoration:none;border-left:3px solid transparent;font-size:13px;transition:background .1s,color .1s}
+  aside.nav a:hover{background:#273449;color:#fff}
+  aside.nav a.active{background:rgba(37,99,235,.2);color:#fff;border-left-color:var(--accent)}
+  aside.nav .nav-icon{margin-right:2px;opacity:.7}
+  main{overflow:auto;padding:20px 24px}
+  .page-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .page-head h1{margin:0;font-size:22px}
+  .page-head .actions{display:flex;gap:8px}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid var(--line);background:#fff;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit}
+  .btn:hover{background:#f9fafb}
+  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .btn.primary:hover{background:#1d4ed8}
+  .btn.ghost{background:transparent;border-color:transparent}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px;cursor:pointer;transition:border-color .15s}
+  .kpi:hover{border-color:#cbd5e1}
+  .kpi.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .kpi .kpi-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .kpi .label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .kpi .value{font-size:24px;font-weight:600;margin-top:2px}
+  .kpi .delta{font-size:12px;margin-top:2px}
+  .kpi .delta.up{color:var(--red)} .kpi .delta.down{color:var(--green)} .kpi .delta.warn{color:var(--amber)}
+  .sparkline{flex-shrink:0;margin-top:2px}
+  .toolbar{display:flex;gap:8px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:12px;flex-wrap:wrap}
+  .search{flex:1;min-width:220px;position:relative}
+  .search input{width:100%;padding:7px 10px 7px 32px;border:1px solid var(--line);border-radius:6px;font-size:13px;font-family:inherit}
+  .search input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .search svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+  .chip{padding:5px 10px;border:1px solid var(--line);border-radius:999px;background:#fff;cursor:pointer;font-size:12px;display:inline-flex;gap:6px;align-items:center;font-family:inherit}
+  .chip .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .chip.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+  .chip[data-status=unanswered] .dot{background:var(--red)}
+  .chip[data-status=replied] .dot{background:var(--accent)}
+  .chip[data-status=closed] .dot{background:var(--green)}
+  .sep{width:1px;height:22px;background:var(--line);flex-shrink:0}
+  .dropdown-wrap{position:relative}
+  .dropdown-menu{display:none;position:absolute;top:calc(100% + 4px);right:0;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:100;min-width:180px;padding:4px 0}
+  .dropdown-menu.open{display:block}
+  .dropdown-menu button{display:block;width:100%;text-align:left;padding:8px 14px;border:none;background:transparent;cursor:pointer;font-size:13px;font-family:inherit;color:var(--ink)}
+  .dropdown-menu button:hover{background:#f9fafb}
+  .dropdown-menu button.selected{color:var(--accent);font-weight:500}
+  .dropdown-menu .dm-label{padding:6px 14px 2px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+  details.filters{background:var(--panel);border:1px solid var(--line);border-radius:8px;margin-bottom:12px}
+  details.filters summary{cursor:pointer;list-style:none;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;user-select:none}
+  details.filters summary::-webkit-details-marker{display:none}
+  details.filters[open] summary{border-bottom:1px solid var(--line)}
+  .filter-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:14px}
+  .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+  .field input,.field select{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:6px;font-size:13px;font-family:inherit}
+  .field input:focus,.field select:focus{outline:none;border-color:var(--accent)}
+  .table-wrap{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  table{width:100%;border-collapse:collapse}
+  thead th{position:sticky;top:0;background:#f9fafb;text-align:left;padding:10px 12px;font-size:12px;color:var(--muted);border-bottom:1px solid var(--line);font-weight:600;letter-spacing:.03em;white-space:nowrap}
+  thead th.sortable{cursor:pointer}
+  thead th.sortable:hover{color:var(--ink)}
+  thead th.sort-active{color:var(--accent)}
+  tbody td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr{cursor:pointer;transition:background .1s}
+  tbody tr:hover{background:#f9fafb}
+  tbody tr.selected{background:var(--accent-soft)}
+  .status{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:3px 8px;border-radius:999px;font-weight:500;white-space:nowrap}
+  .status.unanswered{background:var(--red-soft);color:var(--red)}
+  .status.replied{background:var(--accent-soft);color:var(--accent)}
+  .status.closed{background:var(--green-soft);color:var(--green)}
+  .pri-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:2px 8px;border-radius:999px;font-weight:600;white-space:nowrap}
+  .pri-badge.high{background:var(--red-soft);color:var(--red)}
+  .pri-badge.urgent{background:var(--purple-soft);color:var(--purple)}
+  .pri-badge.normal{background:#f3f4f6;color:var(--muted)}
+  .pri-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+  .pri-badge.high .pri-dot{background:var(--red)}
+  .pri-badge.urgent .pri-dot{background:var(--purple)}
+  .pri-badge.normal .pri-dot{background:#cbd5e1}
+  .ellip{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle}
+  .row-actions{display:flex;gap:4px;opacity:0;transition:opacity .15s}
+  tbody tr:hover .row-actions{opacity:1}
+  .icon-btn{border:none;background:transparent;padding:4px 6px;cursor:pointer;color:var(--muted);border-radius:4px;font-size:13px}
+  .icon-btn:hover{background:#e5e7eb;color:var(--ink)}
+  .tfoot{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f9fafb;border-top:1px solid var(--line)}
+  .tfoot .info{color:var(--muted);font-size:13px}
+  .pager{display:flex;gap:4px;align-items:center;font-size:13px}
+  .pager button{border:1px solid var(--line);background:#fff;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit}
+  .pager button:disabled{opacity:.4;cursor:not-allowed}
+  .pager button:not(:disabled):hover{background:#f3f4f6}
+  .pager input{width:50px;text-align:center;padding:5px;border:1px solid var(--line);border-radius:6px;font-family:inherit}
+  .bulk{display:none;align-items:center;justify-content:space-between;padding:8px 14px;background:var(--accent-soft);border-bottom:1px solid var(--line)}
+  .bulk.show{display:flex}
+  .bulk .count{font-weight:500;color:var(--accent)}
+  .no-results{display:none;padding:40px;text-align:center;color:var(--muted);font-size:14px}
+  .active-filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+  .filter-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:var(--accent-soft);color:var(--accent);border-radius:999px;font-size:12px;border:1px solid #bfdbfe}
+  .filter-chip .rm{cursor:pointer;font-size:14px;line-height:1;font-weight:600;opacity:.6}
+  .filter-chip .rm:hover{opacity:1}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.7"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Kinetic Console
+    </div>
+    <div class="support">Support: support@prodigytel.com &nbsp;|&nbsp; (844) 941-4545</div>
+  </header>
+  <aside class="nav">
+    <div class="group">Main</div>
+    <a href="Kinetic Console.html#dashboard"><span class="nav-icon">⊞</span> Dashboard</a>
+    <a href="Kinetic Console.html#inmates"><span class="nav-icon">👤</span> Inmates</a>
+    <div class="group">Messaging</div>
+    <a href="Requests.html" class="active"><span class="nav-icon">💬</span> Inbox / Requests</a>
+    <a href="#"><span class="nav-icon">📤</span> Sent</a>
+    <a href="#"><span class="nav-icon">📝</span> Drafts</a>
+    <a href="#"><span class="nav-icon">💾</span> Saved Responses</a>
+    <div class="group">Reports</div>
+    <a href="Kinetic Console.html#reports-callsummary"><span class="nav-icon">📊</span> Call Summary</a>
+    <a href="Kinetic Console.html#reports-inmgmt"><span class="nav-icon">📋</span> Inmate Management</a>
+    <a href="Kinetic Console.html#placeholder"><span class="nav-icon">📞</span> Phone Usage</a>
+    <div class="group">Administration</div>
+    <a href="Kinetic Console.html#admin-facilities"><span class="nav-icon">🏢</span> Facilities</a>
+    <a href="Kinetic Console.html#admin-users"><span class="nav-icon">👥</span> Users</a>
+    <div class="group">Support</div>
+    <a href="Kinetic Console.html#help"><span class="nav-icon">❓</span> Help / Docs</a>
+    <a href="Kinetic Console.html#trouble"><span class="nav-icon">🐛</span> Submit Ticket</a>
+  </aside>
+
+  <main>
+    <div class="page-head">
+      <h1>Messages / Requests</h1>
+      <div class="actions">
+        <button class="btn">⬇ Export</button>
+        <button class="btn">📊 Analytics</button>
+        <button class="btn primary">✉ New Message</button>
+      </div>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi active" data-filter="all">
+        <div class="kpi-top">
+          <div><div class="label">All Open</div><div class="value">663</div><div class="delta up">▲ 12% vs last week</div></div>
+          <svg class="sparkline" width="60" height="32" viewBox="0 0 60 32"><polyline points="0,28 10,22 20,24 30,18 40,14 50,16 60,10" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+      <div class="kpi" data-filter="unanswered">
+        <div class="kpi-top">
+          <div><div class="label">Unanswered</div><div class="value" style="color:var(--red)">478</div><div class="delta up">▲ 34% — needs attention</div></div>
+          <svg class="sparkline" width="60" height="32" viewBox="0 0 60 32"><polyline points="0,26 10,20 20,22 30,14 40,8 50,10 60,4" fill="none" stroke="var(--red)" stroke-width="1.5" stroke-linejoin="round" opacity=".6"/></svg>
+        </div>
+      </div>
+      <div class="kpi" data-filter="replied">
+        <div class="kpi-top">
+          <div><div class="label">Replied</div><div class="value" style="color:var(--accent)">112</div><div class="delta down">▼ 5%</div></div>
+          <svg class="sparkline" width="60" height="32" viewBox="0 0 60 32"><polyline points="0,8 10,10 20,12 30,14 40,16 50,18 60,20" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linejoin="round" opacity=".6"/></svg>
+        </div>
+      </div>
+      <div class="kpi" data-filter="sla">
+        <div class="kpi-top">
+          <div><div class="label">Over 24h SLA</div><div class="value" style="color:var(--amber)">47</div><div class="delta warn">⚠ Requires triage</div></div>
+          <svg class="sparkline" width="60" height="32" viewBox="0 0 60 32"><polyline points="0,22 10,20 20,16 30,18 40,12 50,10 60,8" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-linejoin="round" opacity=".6"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-3.5-3.5"/></svg>
+        <input placeholder="Search by inmate, subject, assignee, location…" id="searchInput"/>
+      </div>
+      <span class="sep"></span>
+      <button class="chip active" data-status="all">All</button>
+      <button class="chip" data-status="unanswered"><span class="dot"></span>Unanswered</button>
+      <button class="chip" data-status="replied"><span class="dot"></span>Replied</button>
+      <button class="chip" data-status="closed"><span class="dot"></span>Closed</button>
+      <span class="sep"></span>
+      <div class="dropdown-wrap">
+        <button class="btn" id="dateBtn" onclick="toggleDropdown('dateMenu',this)">📅 <span id="dateBtnLabel">Last 30 days</span> ▾</button>
+        <div class="dropdown-menu" id="dateMenu">
+          <div class="dm-label">Date Range</div>
+          <button onclick="setDateFilter('today','Today')">Today</button>
+          <button onclick="setDateFilter('7d','Last 7 days')">Last 7 days</button>
+          <button class="selected" onclick="setDateFilter('30d','Last 30 days')">Last 30 days</button>
+          <button onclick="setDateFilter('90d','Last 90 days')">Last 90 days</button>
+          <button onclick="setDateFilter('all','All time')">All time</button>
+        </div>
+      </div>
+      <div class="dropdown-wrap">
+        <button class="btn" id="facilityBtn" onclick="toggleDropdown('facilityMenu',this)">🏢 <span id="facilityBtnLabel">All facilities</span> ▾</button>
+        <div class="dropdown-menu" id="facilityMenu">
+          <div class="dm-label">Facility</div>
+          <button class="selected" onclick="setFacilityFilter('all','All facilities')">All facilities</button>
+          <button onclick="setFacilityFilter('comanche','Comanche County OK')">Comanche County OK</button>
+          <button onclick="setFacilityFilter('zapata','Zapata County')">Zapata County</button>
+          <button onclick="setFacilityFilter('rc','RC Sheriff')">RC Sheriff</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="active-filters" id="activeFilters"></div>
+
+    <details class="filters">
+      <summary>
+        <span><strong>Advanced filters</strong> <span style="color:var(--muted)">· Request type, assignee, location, priority</span></span>
+        <span id="filterArrow">▾</span>
+      </summary>
+      <div class="filter-grid">
+        <div class="field"><label>Assigned To</label><input id="af-assignee" placeholder="Name, username or email"/></div>
+        <div class="field"><label>Sent By (inmate)</label><input id="af-inmate" placeholder="Inmate, Account # or Doc ID"/></div>
+        <div class="field"><label>Request Type</label>
+          <select id="af-type"><option value="">Any</option><option>Request of Staff</option><option>Medical</option><option>Grievance</option><option>Library Request</option><option>Commissary Request</option></select>
+        </div>
+        <div class="field"><label>Priority</label>
+          <select id="af-priority"><option value="">Any</option><option value="urgent">Urgent</option><option value="high">High</option><option value="normal">Normal</option></select>
+        </div>
+        <div class="field"><label>Location</label><input id="af-location" placeholder="e.g. A-144, Main-3 Pod-E"/></div>
+        <div class="field"><label>From</label><input id="af-from" type="date" value="2026-03-24"/></div>
+        <div class="field"><label>To</label><input id="af-to" type="date" value="2026-04-24"/></div>
+        <div class="field" style="display:flex;align-items:flex-end;gap:8px">
+          <button class="btn primary" style="flex:1" onclick="applyAdvancedFilters()">Apply</button>
+          <button class="btn" onclick="clearAdvancedFilters()">Clear</button>
+        </div>
+      </div>
+    </details>
+
+    <div class="table-wrap">
+      <div class="bulk" id="bulkBar">
+        <div><span class="count" id="bulkCount">0</span> selected</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn">Assign…</button>
+          <button class="btn">Change Type…</button>
+          <button class="btn">Mark Closed</button>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:32px"><input type="checkbox" id="chkAll"/></th>
+            <th class="sortable sort-active" data-col="0" style="width:150px">Received ▾</th>
+            <th class="sortable" data-col="1">Inmate</th>
+            <th class="sortable" data-col="2">Subject</th>
+            <th class="sortable" data-col="3">Type</th>
+            <th class="sortable" data-col="4">Location</th>
+            <th class="sortable" data-col="5">Assigned To</th>
+            <th class="sortable" data-col="6">Priority</th>
+            <th class="sortable" data-col="7">Status</th>
+            <th style="width:90px"></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div class="no-results" id="noResults">No requests match the current filters.</div>
+      <div class="tfoot">
+        <div class="info" id="footInfo">Showing <strong>1–10</strong> of <strong>663</strong></div>
+        <div class="pager">
+          <button id="btnFirst" disabled onclick="goPage(1)">« First</button>
+          <button id="btnPrev" disabled onclick="goPage(currentPage-1)">‹ Prev</button>
+          Page <input id="pageInput" value="1" onchange="goPage(parseInt(this.value))"/> of <span id="totalPages">67</span>
+          <button id="btnNext" onclick="goPage(currentPage+1)">Next ›</button>
+          <button id="btnLast" onclick="goPage(totalPagesCount)">Last »</button>
+          <span class="sep"></span>
+          Rows: <select id="rowsSelect" onchange="changePageSize()"><option>10</option><option>25</option><option>50</option></select>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const ALL_ROWS = [
+  {date:'04/24/2026 16:31',inmate:'WYKOFF, FRANCIS',subject:'may i work',type:'Request of Staff',loc:'233',assignee:'dweber@comanchecountyok.gov',status:'unanswered',priority:'high',facility:'comanche'},
+  {date:'04/24/2026 15:58',inmate:'APPLEWHITE, DREW',subject:'Request of Staff from…',type:'Request of Staff',loc:'E-9',assignee:'jailforms@kinetic.io',status:'unanswered',priority:'normal',facility:'comanche'},
+  {date:'04/24/2026 15:02',inmate:'FARLEY, JACOB',subject:'Cell move request',type:'Request of Staff',loc:'F-08',assignee:'Rknipe@rcsheriff.gov',status:'unanswered',priority:'normal',facility:'rc'},
+  {date:'04/24/2026 14:40',inmate:'HERNANDEZ-VARGAS',subject:'Chest pain follow-up',type:'Medical',loc:'A-144',assignee:'snavarro@zapatacounty.gov',status:'unanswered',priority:'urgent',facility:'zapata'},
+  {date:'04/24/2026 13:11',inmate:'JOHNSON, KATHERINE',subject:'Book request — library',type:'Library Request',loc:'Main-3 Pod-E',assignee:'jailforms@kinetic.io',status:'unanswered',priority:'normal',facility:'comanche'},
+  {date:'04/24/2026 12:22',inmate:'WILLSON, HAROLD',subject:'Phone time question',type:'Request of Staff',loc:'C-5',assignee:'jailforms@kinetic.io',status:'replied',priority:'normal',facility:'comanche'},
+  {date:'04/24/2026 11:07',inmate:'BURUATO, ART',subject:'Food quality complaint',type:'Grievance',loc:'A-161',assignee:'jailforms@kinetic.io',status:'unanswered',priority:'high',facility:'comanche'},
+  {date:'04/24/2026 10:55',inmate:'HOLCOMB, MELINDA',subject:'Visitation schedule',type:'Request of Staff',loc:'322',assignee:'dweber@comanchecountyok.gov',status:'replied',priority:'normal',facility:'comanche'},
+  {date:'04/24/2026 09:14',inmate:'WRIGHT, MICAH',subject:'Commissary order issue',type:'Commissary Request',loc:'A-1',assignee:'d.richardson@sc.gov',status:'closed',priority:'normal',facility:'rc'},
+  {date:'04/24/2026 08:02',inmate:'HALEY, STEPHEN',subject:'Legal call request',type:'Request of Staff',loc:'D-9',assignee:'jailforms@kinetic.io',status:'unanswered',priority:'normal',facility:'comanche'},
+  {date:'04/23/2026 17:45',inmate:'GARCIA, MIGUEL',subject:'Medical follow-up needed',type:'Medical',loc:'B-12',assignee:'snavarro@zapatacounty.gov',status:'unanswered',priority:'urgent',facility:'zapata'},
+  {date:'04/23/2026 16:20',inmate:'THOMPSON, JAMES',subject:'Request blanket',type:'Commissary Request',loc:'C-3',assignee:'jailforms@kinetic.io',status:'replied',priority:'normal',facility:'comanche'},
+  {date:'04/23/2026 15:10',inmate:'DAVIS, TANYA',subject:'Grievance re: cell conditions',type:'Grievance',loc:'D-7',assignee:'dweber@comanchecountyok.gov',status:'unanswered',priority:'high',facility:'comanche'},
+  {date:'04/23/2026 14:05',inmate:'MARTIN, CARL',subject:'Library book request',type:'Library Request',loc:'A-2',assignee:'jailforms@kinetic.io',status:'closed',priority:'normal',facility:'comanche'},
+  {date:'04/23/2026 13:00',inmate:'WILSON, GRACE',subject:'Phone access question',type:'Request of Staff',loc:'F-11',assignee:'Rknipe@rcsheriff.gov',status:'unanswered',priority:'normal',facility:'rc'},
+];
+
+const priBadge = {
+  urgent:`<span class="pri-badge urgent"><span class="pri-dot"></span>Urgent</span>`,
+  high:`<span class="pri-badge high"><span class="pri-dot"></span>High</span>`,
+  normal:`<span class="pri-badge normal"><span class="pri-dot"></span>Normal</span>`,
+};
+
+let currentPage=1,pageSize=10,totalPagesCount=1;
+let activeStatusFilter='all',activeDateFilter='30d',activeFacilityFilter='all';
+let activeSearch='',advancedFilters={},sortCol=-1,sortDir=1;
+
+function getFilteredRows(){
+  return ALL_ROWS.filter(r=>{
+    if(activeStatusFilter!=='all'&&activeStatusFilter!=='sla'&&r.status!==activeStatusFilter) return false;
+    if(activeStatusFilter==='sla'&&r.status==='closed') return false;
+    if(activeFacilityFilter!=='all'&&r.facility!==activeFacilityFilter) return false;
+    if(activeSearch){const q=activeSearch.toLowerCase();if(![r.inmate,r.subject,r.type,r.loc,r.assignee].some(v=>v.toLowerCase().includes(q))) return false;}
+    if(advancedFilters.assignee&&!r.assignee.toLowerCase().includes(advancedFilters.assignee.toLowerCase())) return false;
+    if(advancedFilters.inmate&&!r.inmate.toLowerCase().includes(advancedFilters.inmate.toLowerCase())) return false;
+    if(advancedFilters.type&&r.type!==advancedFilters.type) return false;
+    if(advancedFilters.priority&&r.priority!==advancedFilters.priority) return false;
+    if(advancedFilters.location&&!r.loc.toLowerCase().includes(advancedFilters.location.toLowerCase())) return false;
+    return true;
+  });
+}
+
+function renderTable(){
+  let rows=getFilteredRows();
+  if(sortCol>=0){const keys=['date','inmate','subject','type','loc','assignee','priority','status'];rows.sort((a,b)=>a[keys[sortCol]].localeCompare(b[keys[sortCol]])*sortDir);}
+  totalPagesCount=Math.max(1,Math.ceil(rows.length/pageSize));
+  if(currentPage>totalPagesCount) currentPage=totalPagesCount;
+  const start=(currentPage-1)*pageSize;
+  const pageRows=rows.slice(start,start+pageSize);
+  const tb=document.getElementById('tbody');
+  tb.innerHTML='';
+  pageRows.forEach(r=>{
+    const tr=document.createElement('tr');
+    const gi=ALL_ROWS.indexOf(r);
+    tr.innerHTML=`
+      <td onclick="event.stopPropagation()"><input type="checkbox" class="rowchk"/></td>
+      <td style="white-space:nowrap;font-size:13px">${r.date}</td>
+      <td><strong>${r.inmate}</strong></td>
+      <td><span class="ellip" title="${r.subject}">${r.subject}</span></td>
+      <td style="font-size:13px">${r.type}</td>
+      <td style="font-size:13px">${r.loc}</td>
+      <td><span class="ellip" title="${r.assignee}" style="font-size:13px">${r.assignee}</span></td>
+      <td>${priBadge[r.priority]||r.priority}</td>
+      <td><span class="status ${r.status}">● ${r.status[0].toUpperCase()+r.status.slice(1)}</span></td>
+      <td><div class="row-actions">
+        <button class="icon-btn" title="Open" onclick="event.stopPropagation();openRequest(${gi})">👁</button>
+        <button class="icon-btn" title="Reassign" onclick="event.stopPropagation()">👤</button>
+        <button class="icon-btn" title="Close" onclick="event.stopPropagation()">✔</button>
+      </div></td>`;
+    tr.addEventListener('click',()=>openRequest(gi));
+    tb.appendChild(tr);
+  });
+  const nr=document.getElementById('noResults');
+  nr.style.display=rows.length===0?'block':'none';
+  const s=start+1,e=Math.min(start+pageSize,rows.length);
+  document.getElementById('footInfo').innerHTML=rows.length===0?'No results':`Showing <strong>${s}–${e}</strong> of <strong>${rows.length}</strong>`;
+  document.getElementById('totalPages').textContent=totalPagesCount;
+  document.getElementById('pageInput').value=currentPage;
+  document.getElementById('btnFirst').disabled=currentPage<=1;
+  document.getElementById('btnPrev').disabled=currentPage<=1;
+  document.getElementById('btnNext').disabled=currentPage>=totalPagesCount;
+  document.getElementById('btnLast').disabled=currentPage>=totalPagesCount;
+}
+
+function openRequest(){window.location.href='Requests View.html';}
+function goPage(n){n=Math.max(1,Math.min(n,totalPagesCount));currentPage=n;renderTable();}
+function changePageSize(){pageSize=parseInt(document.getElementById('rowsSelect').value);currentPage=1;renderTable();}
+
+document.querySelectorAll('th.sortable').forEach(th=>{
+  th.addEventListener('click',()=>{
+    const col=parseInt(th.dataset.col);
+    if(sortCol===col) sortDir*=-1; else{sortCol=col;sortDir=1;}
+    document.querySelectorAll('th.sortable').forEach(x=>{x.classList.remove('sort-active');x.textContent=x.textContent.replace(/ [▴▾]/,'');});
+    th.classList.add('sort-active');
+    th.textContent=th.textContent+(sortDir===1?' ▾':' ▴');
+    currentPage=1;renderTable();
+  });
+});
+
+document.getElementById('searchInput').addEventListener('input',function(){activeSearch=this.value;currentPage=1;renderTable();updateActiveFilterChips();});
+
+document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{
+  document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
+  c.classList.add('active');activeStatusFilter=c.dataset.status;currentPage=1;renderTable();updateActiveFilterChips();
+}));
+document.querySelectorAll('.kpi').forEach(k=>k.addEventListener('click',()=>{
+  document.querySelectorAll('.kpi').forEach(x=>x.classList.remove('active'));
+  k.classList.add('active');const f=k.dataset.filter;activeStatusFilter=f;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active',c.dataset.status===f||(f==='sla'&&c.dataset.status==='all')));
+  currentPage=1;renderTable();updateActiveFilterChips();
+}));
+
+document.getElementById('chkAll').addEventListener('change',e=>{document.querySelectorAll('.rowchk').forEach(c=>c.checked=e.target.checked);updateBulk();});
+document.addEventListener('change',e=>{if(e.target.classList.contains('rowchk')) updateBulk();});
+function updateBulk(){const n=document.querySelectorAll('.rowchk:checked').length;document.getElementById('bulkCount').textContent=n;document.getElementById('bulkBar').classList.toggle('show',n>0);}
+
+function toggleDropdown(id,btn){const m=document.getElementById(id);const was=m.classList.contains('open');document.querySelectorAll('.dropdown-menu').forEach(x=>x.classList.remove('open'));if(!was) m.classList.add('open');}
+document.addEventListener('click',e=>{if(!e.target.closest('.dropdown-wrap')) document.querySelectorAll('.dropdown-menu').forEach(x=>x.classList.remove('open'));});
+
+function setDateFilter(val,label){activeDateFilter=val;document.getElementById('dateBtnLabel').textContent=label;document.querySelectorAll('#dateMenu button').forEach(b=>b.classList.remove('selected'));event.target.classList.add('selected');document.getElementById('dateMenu').classList.remove('open');currentPage=1;renderTable();updateActiveFilterChips();}
+function setFacilityFilter(val,label){activeFacilityFilter=val;document.getElementById('facilityBtnLabel').textContent=label;document.querySelectorAll('#facilityMenu button').forEach(b=>b.classList.remove('selected'));event.target.classList.add('selected');document.getElementById('facilityMenu').classList.remove('open');currentPage=1;renderTable();updateActiveFilterChips();}
+
+function applyAdvancedFilters(){advancedFilters={assignee:document.getElementById('af-assignee').value,inmate:document.getElementById('af-inmate').value,type:document.getElementById('af-type').value,priority:document.getElementById('af-priority').value,location:document.getElementById('af-location').value};currentPage=1;renderTable();updateActiveFilterChips();}
+function clearAdvancedFilters(){['af-assignee','af-inmate','af-location'].forEach(id=>document.getElementById(id).value='');document.getElementById('af-type').value='';document.getElementById('af-priority').value='';advancedFilters={};currentPage=1;renderTable();updateActiveFilterChips();}
+
+function updateActiveFilterChips(){
+  const container=document.getElementById('activeFilters');
+  const chips=[];
+  if(activeStatusFilter!=='all') chips.push({label:`Status: ${activeStatusFilter}`,clear:()=>{activeStatusFilter='all';document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active',c.dataset.status==='all'));renderTable();updateActiveFilterChips();}});
+  if(activeFacilityFilter!=='all') chips.push({label:`Facility: ${document.getElementById('facilityBtnLabel').textContent}`,clear:()=>setFacilityFilter('all','All facilities')});
+  if(activeDateFilter!=='30d') chips.push({label:`Date: ${document.getElementById('dateBtnLabel').textContent}`,clear:()=>setDateFilter('30d','Last 30 days')});
+  if(activeSearch) chips.push({label:`Search: "${activeSearch}"`,clear:()=>{activeSearch='';document.getElementById('searchInput').value='';renderTable();updateActiveFilterChips();}});
+  if(advancedFilters.type) chips.push({label:`Type: ${advancedFilters.type}`,clear:()=>{advancedFilters.type='';document.getElementById('af-type').value='';renderTable();updateActiveFilterChips();}});
+  if(advancedFilters.priority) chips.push({label:`Priority: ${advancedFilters.priority}`,clear:()=>{advancedFilters.priority='';document.getElementById('af-priority').value='';renderTable();updateActiveFilterChips();}});
+  container.innerHTML=chips.map((c,i)=>`<span class="filter-chip">${c.label}<span class="rm" data-idx="${i}">×</span></span>`).join('');
+  container.querySelectorAll('.rm').forEach(btn=>btn.addEventListener('click',()=>chips[parseInt(btn.dataset.idx)].clear()));
+}
+
+document.querySelector('details.filters').addEventListener('toggle',function(){document.getElementById('filterArrow').textContent=this.open?'▴':'▾';});
+renderTable();
+</script>
+</body>
+</html>

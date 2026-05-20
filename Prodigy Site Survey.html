@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Prodigy Site Survey</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body { font-family: 'Helvetica', sans-serif; }
+        .checkbox-label { display: inline-flex; align-items: center; margin-right: 1rem; }
+        .section-title { font-size: 1.25rem; font-weight: bold; margin-top: 1rem; }
+        .field-container { margin-bottom: 0.2rem; }
+        input, select {
+            border: 1px solid #d1d5db;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            width: 100%;
+            font-size: 1rem;
+            line-height: 1.5;
+            box-sizing: border-box;
+        }
+        input[type="checkbox"], input[type="radio"] { width: auto; margin-right: 0.5rem; }
+        .grid-cols-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+        button {
+            background-color: #2563eb;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        label { display: block; margin-bottom: 0.25rem; font-size: 0.875rem; }
+        textarea {
+            resize: vertical;
+            border: 1px solid #d1d5db;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            width: 100%;
+            font-size: 1rem;
+            line-height: 1.5;
+            box-sizing: border-box;
+        }
+        input:focus, textarea:focus { outline: 2px solid #2563eb; outline-offset: 2px; }
+        .note { font-size: 0.875rem; color: #4b5563; margin-bottom: 1rem; }
+    </style>
+</head>
+<body class="p-4 max-w-3xl mx-auto">
+    <h1 class="text-2xl font-bold text-center">Prodigy Site Survey</h1>
+    <p class="note text-center">All fields are optional. Fill as needed and click "Download PDF" to save.</p>
+    <div id="form-container" class="space-y-3">
+        <div class="section-title">Site Information</div>
+        <div class="field-container"><label>Date: <input type="date" id="date" aria-label="Date"></label></div>
+        <div class="field-container"><label>Technician: <input type="text" id="technician" aria-label="Technician"></label></div>
+        <div class="field-container"><label>Installation Date: <input type="date" id="installDate" aria-label="Installation Date"></label></div>
+        <div class="field-container"><label>Site Name: <input type="text" id="siteName" aria-label="Site Name"></label></div>
+        <div class="field-container"><label>Address: <input type="text" id="address" aria-label="Address"></label></div>
+        <div class="field-container"><label>City, State, Zip: <input type="text" id="cityStateZip" aria-label="City, State, Zip"></label></div>
+        <div class="field-container"><label>Site Contact: <input type="text" id="siteContact" aria-label="Site Contact"></label></div>
+        <div class="field-container grid-cols-2">
+            <label>Phone: <input type="tel" id="sitePhone" aria-label="Site Phone"></label>
+            <label>Email: <input type="email" id="siteEmail" aria-label="Site Email"></label>
+        </div>
+        <div class="field-container"><label># of Beds: <input type="text" inputmode="numeric" id="beds" aria-label="Number of Beds"></label></div>
+        <div class="field-container grid-cols-2">
+            <label>Current Vendor: <input type="text" id="vendor" aria-label="Current Vendor"></label>
+            <label>Contract Expiration: <input type="date" id="contractExp" aria-label="Contract Expiration"></label>
+        </div>
+        <div class="field-container"><label>Internet Provider: <input type="text" id="internetProvider" aria-label="Internet Provider"></label></div>
+
+        <div class="section-title">JMS Integration</div>
+        <div class="field-container">
+            <label>Required?</label>
+            <label class="checkbox-label"><input type="radio" name="jmsRequired" value="Yes" aria-label="JMS Required Yes"> Yes</label>
+            <label class="checkbox-label"><input type="radio" name="jmsRequired" value="No" checked aria-label="JMS Required No"> No</label>
+        </div>
+        <div class="field-container"><label>JMS Type (if yes): <input type="text" id="jmsType" placeholder="e.g., ODIS" aria-label="JMS Type"></label></div>
+        <div class="field-container grid-cols-2">
+            <label>JMS Contact: <input type="text" id="jmsContact" aria-label="JMS Contact"></label>
+            <label>Phone: <input type="tel" id="jmsPhone" aria-label="JMS Phone"></label>
+        </div>
+        <div class="field-container"><label>Email: <input type="email" id="jmsEmail" aria-label="JMS Email"></label></div>
+        <div class="field-container"><label>Commissary Vendor: <input type="text" id="commissaryVendor" aria-label="Commissary Vendor"></label></div>
+
+        <div class="section-title">Video Visitation</div>
+        <div class="field-container grid-cols-2">
+            <label>Inmate Units: <input type="text" inputmode="numeric" id="videoInmateUnits" aria-label="Video Inmate Units"></label>
+            <label>Handset Length:
+                <select id="videoInmateHandset" aria-label="Video Inmate Handset Length">
+                    <option value="12">12"</option>
+                    <option value="18" selected>18" (std)</option>
+                    <option value="24">24"</option>
+                    <option value="32">32"</option>
+                </select>
+            </label>
+        </div>
+        <div class="field-container grid-cols-2">
+            <label>Public Units: <input type="text" inputmode="numeric" id="videoPublicUnits" aria-label="Video Public Units"></label>
+            <label>Handset Length:
+                <select id="videoPublicHandset" aria-label="Video Public Handset Length">
+                    <option value="12">12"</option>
+                    <option value="18">18"</option>
+                    <option value="24">24"</option>
+                    <option value="32" selected>32" (std)</option>
+                </select>
+            </label>
+        </div>
+
+        <div class="section-title">Audio Visitation</div>
+        <div class="field-container grid-cols-2">
+            <label>Used?</label>
+            <div>
+                <label class="checkbox-label"><input type="radio" name="audioUsed" value="Yes" aria-label="Audio Used Yes"> Yes</label>
+                <label class="checkbox-label"><input type="radio" name="audioUsed" value="No" checked aria-label="Audio Used No"> No</label>
+            </div>
+            <label># of Sets: <input type="text" inputmode="numeric" id="audioSets" aria-label="Audio Sets"></label>
+        </div>
+        <div class="field-container">
+            <label>Recording Required?</label>
+            <label class="checkbox-label"><input type="radio" name="audioRecording" value="Yes" aria-label="Audio Recording Yes"> Yes</label>
+            <label class="checkbox-label"><input type="radio" name="audioRecording" value="No" checked aria-label="Audio Recording No"> No</label>
+        </div>
+        <div class="field-container">
+            <label>Cabling in Place?</label>
+            <label class="checkbox-label"><input type="radio" name="audioCabling" value="Yes" aria-label="Audio Cabling Yes"> Yes</label>
+            <label class="checkbox-label"><input type="radio" name="audioCabling" value="No" checked aria-label="Audio Cabling No"> No</label>
+        </div>
+        <div class="field-container grid-cols-2">
+            <label>Inmate Handset Length:
+                <select id="audioInmateHandset" aria-label="Audio Inmate Handset Length">
+                    <option value="12">12"</option>
+                    <option value="18" selected>18" (std)</option>
+                    <option value="24">24"</option>
+                    <option value="32">32"</option>
+                </select>
+            </label>
+            <label>Public Handset Length:
+                <select id="audioPublicHandset" aria-label="Audio Public Handset Length">
+                    <option value="12">12"</option>
+                    <option value="18">18"</option>
+                    <option value="24">24"</option>
+                    <option value="32" selected>32" (std)</option>
+                </select>
+            </label>
+        </div>
+
+        <div class="section-title">Inmate Phones</div>
+        <div class="field-container grid-cols-2">
+            <label>Current #: <input type="text" inputmode="numeric" id="phoneCurrent" aria-label="Current Phones"></label>
+            <div>
+                <label>Additional Phones Needed?</label>
+                <label class="checkbox-label"><input type="radio" name="phoneAdditional" value="Yes" aria-label="Additional Phones Yes"> Yes</label>
+                <label class="checkbox-label"><input type="radio" name="phoneAdditional" value="No" checked aria-label="Additional Phones No"> No</label>
+            </div>
+        </div>
+        <div class="field-container">
+            <label>Type (if yes):</label>
+            <label class="checkbox-label"><input type="checkbox" id="phoneTypeInmate" aria-label="Phone Type Inmate"> Inmate</label>
+            <label class="checkbox-label"><input type="checkbox" id="phoneTypeCart" aria-label="Phone Type Cart"> Cart</label>
+            <label class="checkbox-label"><input type="checkbox" id="phoneTypeTTY" aria-label="Phone Type TTY"> TTY</label>
+            <label class="checkbox-label"><input type="checkbox" id="phoneTypeOther" aria-label="Phone Type Other"> Other: <input type="text" id="phoneTypeOtherText" aria-label="Phone Type Other Text"></label>
+        </div>
+        <div class="field-container">
+            <label>Cabling in Place?</label>
+            <label class="checkbox-label"><input type="radio" name="phoneCabling" value="Yes" aria-label="Phone Cabling Yes"> Yes</label>
+            <label class="checkbox-label"><input type="radio" name="phoneCabling" value="No" checked aria-label="Phone Cabling No"> No</label>
+        </div>
+        <div class="field-container grid-cols-2">
+            <div>
+                <label>Conduit Backboards Needed?</label>
+                <label class="checkbox-label"><input type="radio" name="phoneBackboards" value="Yes" aria-label="Phone Backboards Yes"> Yes (#: <input type="text" inputmode="numeric" id="phoneBackboardsNum" aria-label="Phone Backboards Number">)</label>
+                <label class="checkbox-label"><input type="radio" name="phoneBackboards" value="No" checked aria-label="Phone Backboards No"> No</label>
+            </div>
+            <label>Handset Length:
+                <select id="phoneHandset" aria-label="Phone Handset Length">
+                    <option value="12">12"</option>
+                    <option value="18" selected>18" (std)</option>
+                    <option value="24">24"</option>
+                    <option value="32">32"</option>
+                </select>
+            </label>
+        </div>
+        <div class="field-container"><label>Total # of Phones: <input type="text" inputmode="numeric" id="phoneTotal" aria-label="Total Phones"></label></div>
+        <div class="field-container grid-cols-2">
+            <div>
+                <label>Equipment Mount:</label>
+                <label class="checkbox-label"><input type="radio" name="phoneMount" value="Rack" aria-label="Phone Mount Rack"> 3 Ft. Rack</label>
+                <label class="checkbox-label"><input type="radio" name="phoneMount" value="Wall" aria-label="Phone Mount Wall"> Wall Mount</label>
+            </div>
+            <div>
+                <label>Adequate Backboard Space (if Wall)?</label>
+                <label class="checkbox-label"><input type="radio" name="phoneBackboardSpace" value="Yes" aria-label="Phone Backboard Space Yes"> Yes</label>
+                <label class="checkbox-label"><input type="radio" name="phoneBackboardSpace" value="No" checked aria-label="Phone Backboard Space No"> No</label>
+            </div>
+        </div>
+        <div class="field-container grid-cols-2">
+            <label>Interface Cable Length: <input type="text" inputmode="numeric" id="phoneCableLength" aria-label="Phone Cable Length"> ft.</label>
+            <div>
+                <label>Adequate Power Available?</label>
+                <label class="checkbox-label"><input type="radio" name="phonePower" value="Yes" aria-label="Phone Power Yes"> Yes</label>
+                <label class="checkbox-label"><input type="radio" name="phonePower" value="No" checked aria-label="Phone Power No"> No</label>
+            </div>
+        </div>
+
+        <div class="section-title">Welcome Kit</div>
+        <div class="field-container"><label>Tri-Fold Brochures (Lobby): <input type="text" inputmode="numeric" id="brochures" value="1" readonly aria-label="Brochures"></label></div>
+        <div class="field-container"><label>Phone Instructions (Inmate Areas): <input type="text" inputmode="numeric" id="phoneInstructions" value="10" readonly aria-label="Phone Instructions"></label></div>
+        <div class="field-container grid-cols-2">
+            <label>Video Visitation Instructions (Public Size):
+                <select id="videoPublicSize" aria-label="Video Public Size">
+                    <option value="8.5x11">8.5x11</option>
+                    <option value="5x7">5x7</option>
+                    <option value="2x4">2x4</option>
+                </select>
+            </label>
+            <label>Qty: <input type="text" inputmode="numeric" id="videoPublicQty" value="1" readonly aria-label="Video Public Qty"></label>
+        </div>
+        <div class="field-container grid-cols-2">
+            <label>Video Visitation Instructions (Inmate Size):
+                <select id="videoInmateSize" aria-label="Video Inmate Size">
+                    <option value="8.5x11">8.5x11</option>
+                    <option value="5x7">5x7</option>
+                    <option value="2x4">2x4</option>
+                </select>
+            </label>
+            <label>Qty: <input type="text" inputmode="numeric" id="videoInmateQty" value="1" readonly aria-label="Video Inmate Qty"></label>
+        </div>
+
+        <div class="section-title">Tablets</div>
+        <div class="field-container"><label><input type="checkbox" id="noTablets" aria-label="No Tablets"> Not Using Tablets</label></div>
+        <div class="field-container"><label># Required: <input type="text" inputmode="numeric" id="tabletCount" aria-label="Tablet Count"></label></div>
+        <div class="field-container">
+            <label>Charging Type:</label>
+            <label class="checkbox-label"><input type="radio" name="tabletCharging" value="Wired" aria-label="Tablet Charging Wired"> Wired</label>
+            <label class="checkbox-label"><input type="radio" name="tabletCharging" value="Wireless" aria-label="Tablet Charging Wireless"> Wireless</label>
+        </div>
+        <div class="field-container"><label># Charging Stations: <input type="text" inputmode="numeric" id="tabletStations" aria-label="Tablet Stations"></label></div>
+        <div class="field-container"><label># WAPs Required: <input type="text" inputmode="numeric" id="tabletWAPs" aria-label="Tablet WAPs"></label></div>
+        <div class="field-container">
+            <label>Cabling in Place for WAPs?</label>
+            <label class="checkbox-label"><input type="radio" name="tabletCabling" value="Yes" aria-label="Tablet Cabling Yes"> Yes</label>
+            <label class="checkbox-label"><input type="radio" name="tabletCabling" value="No" checked aria-label="Tablet Cabling No"> No</label>
+        </div>
+        <div class="field-container"><label>Est. Wiring Days: <input type="text" inputmode="numeric" id="tabletWiringDays" aria-label="Tablet Wiring Days"></label></div>
+
+        <div class="section-title">Commissary</div>
+        <div class="field-container"><label><input type="checkbox" id="noCommissary" aria-label="No Commissary"> Not Using Commissary</label></div>
+        <div class="field-container grid-cols-2">
+            <label># Lobby Kiosks: <input type="text" inputmode="numeric" id="commissaryLobbyKiosks" aria-label="Commissary Lobby Kiosks"></label>
+            <div>
+                <label>In Place?</label>
+                <label class="checkbox-label"><input type="radio" name="commissaryKioskInPlace" value="Yes" aria-label="Commissary Kiosk In Place Yes"> Yes</label>
+                <label class="checkbox-label"><input type="radio" name="commissaryKioskInPlace" value="No" checked aria-label="Commissary Kiosk In Place No"> No</label>
+            </div>
+        </div>
+        <div class="field-container"><label>Est. Wiring Days/Hours (if no): <input type="text" inputmode="numeric" id="commissaryWiring" aria-label="Commissary Wiring"></label></div>
+        <div class="field-container"><label># Booking Kiosks: <input type="text" inputmode="numeric" id="commissaryBookingKiosks" aria-label="Commissary Booking Kiosks"></label></div>
+        <div class="field-container grid-cols-2">
+            <div>
+                <label>Handing Out Commissary?</label>
+                <label class="checkbox-label"><input type="radio" name="commissaryHandout" value="Yes" aria-label="Commissary Handout Yes"> Yes</label>
+                <label class="checkbox-label"><input type="radio" name="commissaryHandout" value="No" checked aria-label="Commissary Handout No"> No</label>
+            </div>
+            <div>
+                <label>Web-Only Commissary?</label>
+                <label class="checkbox-label"><input type="radio" name="commissaryWebOnly" value="Yes" aria-label="Commissary Web Only Yes"> Yes</label>
+                <label class="checkbox-label"><input type="radio" name="commissaryWebOnly" value="No" checked aria-label="Commissary Web Only No"> No</label>
+            </div>
+        </div>
+        <div class="field-container grid-cols-2">
+            <label>Contact Name: <input type="text" id="commissaryContact" aria-label="Commissary Contact"></label>
+            <label>Phone: <input type="tel" id="commissaryPhone" aria-label="Commissary Phone"></label>
+        </div>
+        <div class="field-container"><label>Email: <input type="email" id="commissaryEmail" aria-label="Commissary Email"></label></div>
+
+        <div class="section-title">Notes</div>
+        <div class="field-container"><textarea id="notes" rows="4" class="w-full border rounded p-2" aria-label="Notes"></textarea></div>
+    </div>
+    <div class="text-center mt-6">
+        <button onclick="generatePDF()">Download PDF</button>
+    </div>
+
+    <script>
+        function generatePDF() {
+            try {
+                if (!window.jspdf || !window.jspdf.jsPDF) {
+                    alert('Error: jsPDF library not loaded. Please ensure you have an internet connection and try again.');
+                    return;
+                }
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+                doc.setFont('Helvetica');
+                doc.setFontSize(12);
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const margin = 40;
+                const maxY = pageHeight - margin;
+                let y = margin;
+                const checkPageOverflow = (spaceNeeded) => { if (y + spaceNeeded > maxY) { doc.addPage(); y = margin; } };
+                const addText = (label, value, x, indent = 0) => { checkPageOverflow(20); const text = `${label}: ${value || 'N/A'}`; doc.text(text, x + indent, y); doc.line(x + indent, y + 2, x + indent + doc.getTextWidth(text), y + 2); y += 20; };
+                const addSection = (title) => { checkPageOverflow(35); doc.setFontSize(14); doc.setFont('Helvetica', 'bold'); doc.text(title, margin, y); doc.setFont('Helvetica', 'normal'); doc.setFontSize(12); y += 10; doc.line(margin, y, pageWidth - margin, y); y += 15; };
+                const addGroup = (items, x, indent = 20) => { items.forEach(({ label, value }) => { addText(label, value, x, indent); }); };
+                const addMultiLineText = (label, value, x, indent = 0) => { checkPageOverflow(20); doc.text(`${label}:`, x + indent, y); y += 15; doc.splitTextToSize(value || 'N/A', pageWidth - 2 * margin - indent).forEach(line => { checkPageOverflow(15); doc.text(line, x + indent, y); y += 15; }); };
+                addSection('Prodigy Site Survey');
+                addText('Date', document.getElementById('date').value, margin);
+                addText('Technician', document.getElementById('technician').value, margin);
+                addText('Installation Date', document.getElementById('installDate').value, margin);
+                addSection('Site Information');
+                addGroup([{label:'Site Name',value:document.getElementById('siteName').value},{label:'Address',value:document.getElementById('address').value},{label:'City, State, Zip',value:document.getElementById('cityStateZip').value},{label:'Site Contact',value:document.getElementById('siteContact').value},{label:'Phone',value:document.getElementById('sitePhone').value},{label:'Email',value:document.getElementById('siteEmail').value},{label:'# of Beds',value:document.getElementById('beds').value},{label:'Current Vendor',value:document.getElementById('vendor').value},{label:'Contract Expiration',value:document.getElementById('contractExp').value},{label:'Internet Provider',value:document.getElementById('internetProvider').value}],margin);
+                addSection('JMS Integration');
+                addText('Required?', document.querySelector('input[name="jmsRequired"]:checked')?.value, margin);
+                addText('JMS Type', document.getElementById('jmsType').value, margin);
+                addGroup([{label:'JMS Contact',value:document.getElementById('jmsContact').value},{label:'Phone',value:document.getElementById('jmsPhone').value},{label:'Email',value:document.getElementById('jmsEmail').value},{label:'Commissary Vendor',value:document.getElementById('commissaryVendor').value}],margin);
+                addSection('Video Visitation');
+                addGroup([{label:'Inmate Units',value:document.getElementById('videoInmateUnits').value},{label:'Handset Length',value:document.getElementById('videoInmateHandset').value+'"'},{label:'Public Units',value:document.getElementById('videoPublicUnits').value},{label:'Handset Length',value:document.getElementById('videoPublicHandset').value+'"'}],margin);
+                addSection('Audio Visitation');
+                addText('Used?',document.querySelector('input[name="audioUsed"]:checked')?.value,margin);
+                addText('# of Sets',document.getElementById('audioSets').value,margin);
+                addText('Recording Required?',document.querySelector('input[name="audioRecording"]:checked')?.value,margin);
+                addText('Cabling in Place?',document.querySelector('input[name="audioCabling"]:checked')?.value,margin);
+                addGroup([{label:'Inmate Handset Length',value:document.getElementById('audioInmateHandset').value+'"'},{label:'Public Handset Length',value:document.getElementById('audioPublicHandset').value+'"'}],margin);
+                addSection('Inmate Phones');
+                addText('Current #',document.getElementById('phoneCurrent').value,margin);
+                addText('Additional Phones Needed?',document.querySelector('input[name="phoneAdditional"]:checked')?.value,margin);
+                let pt=[]; if(document.getElementById('phoneTypeInmate').checked)pt.push('Inmate'); if(document.getElementById('phoneTypeCart').checked)pt.push('Cart'); if(document.getElementById('phoneTypeTTY').checked)pt.push('TTY'); if(document.getElementById('phoneTypeOther').checked)pt.push('Other: '+document.getElementById('phoneTypeOtherText').value);
+                addText('Type (if yes)',pt.join(', ')||'None',margin);
+                addText('Cabling in Place?',document.querySelector('input[name="phoneCabling"]:checked')?.value,margin);
+                addText('Conduit Backboards Needed?',document.querySelector('input[name="phoneBackboards"]:checked')?.value+(document.getElementById('phoneBackboardsNum').value?` (#: ${document.getElementById('phoneBackboardsNum').value})`:''),margin);
+                addGroup([{label:'Handset Length',value:document.getElementById('phoneHandset').value+'"'},{label:'Total # of Phones',value:document.getElementById('phoneTotal').value},{label:'Equipment Mount',value:document.querySelector('input[name="phoneMount"]:checked')?.value},{label:'Adequate Backboard Space (if Wall)?',value:document.querySelector('input[name="phoneBackboardSpace"]:checked')?.value},{label:'Interface Cable Length',value:document.getElementById('phoneCableLength').value+' ft.'},{label:'Adequate Power Available?',value:document.querySelector('input[name="phonePower"]:checked')?.value}],margin);
+                addSection('Welcome Kit');
+                addGroup([{label:'Tri-Fold Brochures (Lobby)',value:document.getElementById('brochures').value},{label:'Phone Instructions (Inmate Areas)',value:document.getElementById('phoneInstructions').value},{label:'Video Visitation Instructions (Public)',value:`Size: ${document.getElementById('videoPublicSize').value} Qty: ${document.getElementById('videoPublicQty').value}`},{label:'Video Visitation Instructions (Inmate)',value:`Size: ${document.getElementById('videoInmateSize').value} Qty: ${document.getElementById('videoInmateQty').value}`}],margin);
+                addSection('Tablets');
+                addText('Not Using Tablets?',document.getElementById('noTablets').checked?'Yes':'No',margin);
+                addGroup([{label:'# Required',value:document.getElementById('tabletCount').value},{label:'Charging Type',value:document.querySelector('input[name="tabletCharging"]:checked')?.value},{label:'# Charging Stations',value:document.getElementById('tabletStations').value},{label:'# WAPs Required',value:document.getElementById('tabletWAPs').value},{label:'Cabling in Place for WAPs?',value:document.querySelector('input[name="tabletCabling"]:checked')?.value},{label:'Est. Wiring Days',value:document.getElementById('tabletWiringDays').value}],margin);
+                addSection('Commissary');
+                addText('Not Using Commissary?',document.getElementById('noCommissary').checked?'Yes':'No',margin);
+                addText('# Lobby Kiosks',document.getElementById('commissaryLobbyKiosks').value,margin);
+                addText('In Place?',document.querySelector('input[name="commissaryKioskInPlace"]:checked')?.value,margin);
+                addGroup([{label:'Est. Wiring Days/Hours',value:document.getElementById('commissaryWiring').value},{label:'# Booking Kiosks',value:document.getElementById('commissaryBookingKiosks').value},{label:'Handing Out Commissary?',value:document.querySelector('input[name="commissaryHandout"]:checked')?.value},{label:'Web-Only Commissary?',value:document.querySelector('input[name="commissaryWebOnly"]:checked')?.value},{label:'Contact Name',value:document.getElementById('commissaryContact').value},{label:'Phone',value:document.getElementById('commissaryPhone').value},{label:'Email',value:document.getElementById('commissaryEmail').value}],margin);
+                addSection('Notes');
+                addMultiLineText('Notes',document.getElementById('notes').value,margin);
+                try { doc.save('Prodigy_Site_Survey.pdf'); alert('PDF generated successfully!'); }
+                catch(e) { const b=doc.output('blob'),u=URL.createObjectURL(b),a=document.createElement('a'); a.href=u; a.download='Prodigy_Site_Survey.pdf'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(u); }
+            } catch(error) { alert('Error generating PDF: '+error.message); }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<!-- saved from url=(0042)https://kineticconsole.com/#!/permissions/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><title>Kinetic Console – New Permissions System Mockup</title><style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#1e2d3d;color:#222;min-height:100vh;}
+.topbar{background:#1e2d3d;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:52px;border-bottom:2px solid #2e8b57;}
+.topbar .logo{font-size:1.2rem;font-weight:700;letter-spacing:1px;}
+.topbar .badge{background:#2e8b57;color:#fff;border-radius:20px;padding:3px 14px;font-size:.75rem;margin-left:12px;}
+.layout{display:flex;height:calc(100vh - 52px);}
+.sidebar{width:220px;background:#253545;border-right:1px solid #1a2535;display:flex;flex-direction:column;padding:16px 0;flex-shrink:0;}
+.sidebar .nav-item{padding:10px 20px;cursor:pointer;color:#aac;font-size:.87rem;border-left:3px solid transparent;transition:.15s;}
+.sidebar .nav-item:hover{background:#2e4055;color:#fff;}
+.sidebar .nav-item.active{background:#2e4055;color:#4fc;border-left-color:#4fc;}
+.sidebar .nav-section{padding:18px 20px 6px;color:#566;font-size:.72rem;text-transform:uppercase;letter-spacing:1px;}
+.main{flex:1;overflow-y:auto;background:#f0f2f5;}
+.page{display:none;padding:28px 32px;}
+.page.active{display:block;}
+.page-title{font-size:1.4rem;font-weight:700;color:#1e2d3d;margin-bottom:4px;}
+.page-sub{color:#667;font-size:.9rem;margin-bottom:22px;}
+.card{background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.09);margin-bottom:20px;}
+.card-header{padding:16px 22px;border-bottom:1px solid #eef;display:flex;align-items:center;justify-content:space-between;border-radius:10px 10px 0 0;}
+.card-header h3{font-size:1rem;font-weight:700;color:#1e2d3d;}
+.card-body{padding:20px 22px;}
+.btn{border:none;border-radius:6px;padding:8px 18px;cursor:pointer;font-size:.87rem;font-weight:600;transition:.15s;}
+.btn-primary{background:#2563eb;color:#fff;} .btn-primary:hover{background:#1d4ed8;}
+.btn-success{background:#059669;color:#fff;} .btn-success:hover{background:#047857;}
+.btn-warning{background:#d97706;color:#fff;} .btn-warning:hover{background:#b45309;}
+.btn-danger{background:#dc2626;color:#fff;} .btn-danger:hover{background:#b91c1c;}
+.btn-ghost{background:#e5e7eb;color:#374151;} .btn-ghost:hover{background:#d1d5db;}
+.btn-sm{padding:5px 12px;font-size:.8rem;}
+.badge2{display:inline-block;border-radius:12px;padding:2px 10px;font-size:.75rem;font-weight:600;}
+.badge-green{background:#d1fae5;color:#065f46;}
+.badge-blue{background:#dbeafe;color:#1e40af;}
+.badge-orange{background:#ffedd5;color:#9a3412;}
+.badge-gray{background:#f3f4f6;color:#374151;}
+.badge-purple{background:#ede9fe;color:#5b21b6;}
+.table{width:100%;border-collapse:collapse;}
+.table th{background:#f8f9fa;color:#374151;font-size:.8rem;text-transform:uppercase;letter-spacing:.5px;padding:10px 14px;text-align:left;border-bottom:2px solid #e5e7eb;}
+.table td{padding:11px 14px;border-bottom:1px solid #f0f0f0;font-size:.88rem;vertical-align:middle;}
+.table tr:hover td{background:#fafafa;}
+.tag{display:inline-block;background:#e0f2fe;color:#075985;border-radius:4px;padding:1px 7px;font-size:.75rem;margin:1px;}
+.role-card{border:2px solid #e5e7eb;border-radius:8px;padding:16px;margin-bottom:12px;cursor:pointer;transition:.15s;position:relative;}
+.role-card:hover{border-color:#2563eb;background:#f0f7ff;}
+.role-card.selected{border-color:#2563eb;background:#eff6ff;}
+.role-card h4{font-size:.95rem;font-weight:700;margin-bottom:4px;}
+.role-card p{font-size:.82rem;color:#667;}
+.role-inherit-line{border-left:3px solid #2563eb;margin-left:20px;padding-left:16px;margin-bottom:8px;}
+.perm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:14px;}
+.perm-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #e5e7eb;border-radius:6px;font-size:.83rem;}
+.perm-item .toggle{width:34px;height:18px;background:#d1d5db;border-radius:9px;position:relative;cursor:pointer;transition:.2s;flex-shrink:0;}
+.perm-item .toggle.on{background:#2563eb;}
+.perm-item .toggle::after{content:'';position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;top:2px;left:2px;transition:.2s;}
+.perm-item .toggle.on::after{left:18px;}
+.perm-cat{font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;color:#888;margin-top:16px;margin-bottom:6px;font-weight:700;}
+.migrate-step{display:flex;align-items:flex-start;gap:16px;padding:16px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:12px;background:#fafafa;}
+.migrate-step .step-num{width:32px;height:32px;background:#2563eb;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;flex-shrink:0;}
+.migrate-step .step-content h4{font-size:.9rem;font-weight:700;margin-bottom:3px;}
+.migrate-step .step-content p{font-size:.82rem;color:#555;}
+.progress-bar{height:10px;background:#e5e7eb;border-radius:5px;margin:8px 0;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,#2563eb,#059669);border-radius:5px;transition:.5s;}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px;}
+.stat-card{background:#fff;border-radius:10px;padding:18px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.07);}
+.stat-card .num{font-size:2rem;font-weight:800;color:#2563eb;}
+.stat-card .lbl{font-size:.8rem;color:#667;margin-top:2px;}
+.input{border:1px solid #d1d5db;border-radius:6px;padding:7px 12px;font-size:.87rem;width:100%;outline:none;}
+.input:focus{border-color:#2563eb;box-shadow:0 0 0 2px rgba(37,99,235,.15);}
+.select{border:1px solid #d1d5db;border-radius:6px;padding:7px 12px;font-size:.87rem;background:#fff;outline:none;}
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:12px;width:640px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.modal-header{padding:20px 24px;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between;}
+.modal-header h3{font-size:1.05rem;font-weight:700;}
+.modal-close{cursor:pointer;font-size:1.4rem;color:#888;line-height:1;}
+.modal-body{padding:24px;}
+.modal-footer{padding:16px 24px;border-top:1px solid #eee;display:flex;gap:10px;justify-content:flex-end;}
+.flex{display:flex;} .gap-2{gap:8px;} .gap-3{gap:12px;} .items-center{align-items:center;}
+.justify-between{justify-content:space-between;} .flex-1{flex:1;}
+.mb-1{margin-bottom:4px;} .mb-2{margin-bottom:8px;} .mb-3{margin-bottom:12px;} .mb-4{margin-bottom:16px;}
+.mt-2{margin-top:8px;} .mt-3{margin-top:12px;} .mt-4{margin-top:16px;}
+.text-sm{font-size:.85rem;} .text-xs{font-size:.78rem;} .text-gray{color:#6b7280;} .text-green{color:#059669;} .text-blue{color:#2563eb;}
+.font-bold{font-weight:700;} .w-full{width:100%;}
+.alert{border-radius:8px;padding:12px 16px;font-size:.87rem;margin-bottom:14px;display:flex;align-items:flex-start;gap:10px;}
+.alert-info{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;}
+.alert-success{background:#d1fae5;border:1px solid #6ee7b7;color:#065f46;}
+.alert-warning{background:#fffbeb;border:1px solid #fde68a;color:#92400e;}
+.divider{border:none;border-top:1px solid #e5e7eb;margin:18px 0;}
+.chip-group{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.chip{display:inline-flex;align-items:center;background:#e0f2fe;color:#075985;border-radius:16px;padding:3px 10px;font-size:.78rem;gap:4px;}
+.chip .remove{cursor:pointer;color:#0369a1;font-size:.9rem;line-height:1;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.highlight-new{background:#f0fdf4;border:2px dashed #059669;border-radius:8px;padding:16px;margin-top:16px;}
+</style></head><body>
+<div class="topbar">
+  <div class="flex items-center gap-2">
+    <span class="logo">Kinetic Console</span>
+    <span class="badge">NEW: Role-Based Permissions</span>
+  </div>
+  <span style="color:#aac;font-size:.82rem;">Support: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="03707673736c71774373716c676a647a77666f2d606c6e">[email&#160;protected]</a> | (844) 941-4545</span>
+</div>
+<div class="layout">
+  <div class="sidebar">
+    <div class="nav-section">Permissions</div>
+    <div class="nav-item active" onclick="showPage(&#39;roles&#39;)">🏷️ Roles &amp; Templates</div>
+    <div class="nav-item" onclick="showPage(&#39;builder&#39;)">🔧 Role Builder</div>
+    <div class="nav-item" onclick="showPage(&#39;migration&#39;)">🔄 Migration Wizard</div>
+    <div class="nav-item" onclick="showPage(&#39;users&#39;)">👥 User Assignments</div>
+    <div class="nav-item" onclick="showPage(&#39;compare&#39;)">⚖️ Compare Roles</div>
+    <div class="nav-section">Legacy</div>
+    <div class="nav-item" onclick="showPage(&#39;legacy&#39;)">📋 Old Permission Sets</div>
+  </div>
+  <div class="main">
+
+    <!-- PAGE: ROLES -->
+    <div class="page active" id="page-roles">
+      <div class="page-title">Roles &amp; Permission Templates</div>
+      <div class="page-sub">Manage standardized roles that users inherit. Instead of hundreds of unique permission sets, organize users into roles — with optional per-user overrides.</div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="num" style="color:#dc2626;">380</div>
+          <div class="lbl">Legacy Permission Sets</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" style="color:#059669;">8</div>
+          <div class="lbl">New Standardized Roles</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" style="color:#2563eb;">247</div>
+          <div class="lbl">Users Auto-Mapped</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" style="color:#d97706;">12</div>
+          <div class="lbl">Users Need Review</div>
+        </div>
+      </div>
+
+      <div class="alert alert-info">
+        💡 <div><strong>How this works:</strong> Each role is a named permission template. Users are assigned a role, which gives them the role's default permissions. You can then add individual <em>overrides</em> for a specific user without creating an entirely new permission set.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>System Roles</h3>
+          <div class="flex gap-2">
+            <input class="input" style="width:220px;" placeholder="Search roles..." oninput="filterRoles(this.value)">
+            <button class="btn btn-primary btn-sm" onclick="openModal(&#39;modal-new-role&#39;)">+ New Role</button>
+          </div>
+        </div>
+        <div class="card-body" id="roles-list">
+  <div class="role-card" onclick="this.classList.toggle(&#39;selected&#39;)">
+    <div class="flex justify-between items-center mb-2">
+      <div class="flex items-center gap-2">
+        <span style="width:14px;height:14px;border-radius:50%;background:#7c3aed;display:inline-block;flex-shrink:0"></span>
+        <h4>Super Admin</h4>
+        
+      </div>
+      <div class="flex gap-2 items-center">
+        <span class="badge2 badge-gray">201 perms</span>
+        <span class="badge2 badge-purple">3 users</span>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();document.querySelector(&#39;[onclick=\&#39;showPage(\&#39;builder\&#39;)\&#39;\&#39;]&#39;).click();document.querySelector(&#39;#page-builder select&#39;).value=&#39;superadmin&#39;;loadBuilderRole(&#39;superadmin&#39;)">Edit</button>
+      </div>
+    </div>
+    <p>Full system access including back-office and admin controls</p>
+  </div>
+
+  <div class="role-card" onclick="this.classList.toggle(&#39;selected&#39;)">
+    <div class="flex justify-between items-center mb-2">
+      <div class="flex items-center gap-2">
+        <span style="width:14px;height:14px;border-radius:50%;background:#2563eb;display:inline-block;flex-shrink:0"></span>
+        <h4>Facility Admin</h4>
+        <span class="text-xs text-gray">inherits from <strong>Corrections Officer</strong></span>
+      </div>
+      <div class="flex gap-2 items-center">
+        <span class="badge2 badge-gray">165 perms</span>
+        <span class="badge2 badge-blue">87 users</span>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();document.querySelector(&#39;[onclick=\&#39;showPage(\&#39;builder\&#39;)\&#39;\&#39;]&#39;).click();document.querySelector(&#39;#page-builder select&#39;).value=&#39;admin&#39;;loadBuilderRole(&#39;admin&#39;)">Edit</button>
+      </div>
+    </div>
+    <p>Full facility management — inmates, calls, reports, video</p>
+  </div>
+
+  <div class="role-card" onclick="this.classList.toggle(&#39;selected&#39;)">
+    <div class="flex justify-between items-center mb-2">
+      <div class="flex items-center gap-2">
+        <span style="width:14px;height:14px;border-radius:50%;background:#0891b2;display:inline-block;flex-shrink:0"></span>
+        <h4>Supervisor</h4>
+        <span class="text-xs text-gray">inherits from <strong>Corrections Officer</strong></span>
+      </div>
+      <div class="flex gap-2 items-center">
+        <span class="badge2 badge-gray">120 perms</span>
+        <span class="badge2 badge-blue">24 users</span>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();document.querySelector(&#39;[onclick=\&#39;showPage(\&#39;builder\&#39;)\&#39;\&#39;]&#39;).click();document.querySelector(&#39;#page-builder select&#39;).value=&#39;supervisor&#39;;loadBuilderRole(&#39;supervisor&#39;)">Edit</button>
+      </div>
+    </div>
+    <p>Officer plus limited admin: user management, schedules</p>
+  </div>
+
+  <div class="role-card" onclick="this.classList.toggle(&#39;selected&#39;)">
+    <div class="flex justify-between items-center mb-2">
+      <div class="flex items-center gap-2">
+        <span style="width:14px;height:14px;border-radius:50%;background:#059669;display:inline-block;flex-shrink:0"></span>
+        <h4>Corrections Officer</h4>
+        
+      </div>
+      <div class="flex gap-2 items-center">
+        <span class="badge2 badge-gray">89 perms</span>
+        <span class="badge2 badge-green">134 users</span>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();document.querySelector(&#39;[onclick=\&#39;showPage(\&#39;builder\&#39;)\&#39;\&#39;]&#39;).click();document.querySelector(&#39;#page-builder select&#39;).value=&#39;officer&#39;;loadBuilderRole(&#39;officer&#39;)">Edit</button>
+      </div>
+    </div>
+    <p>Day-to-day operations: inmates, calls, messaging, watches</p>
+  </div>
+
+  <div class="role-card" onclick="this.classList.toggle(&#39;selected&#39;)">
+    <div class="flex justify-between items-center mb-2">
+      <div class="flex items-center gap-2">
+        <span style="width:14px;height:14px;border-radius:50%;background:#6b7280;display:inline-block;flex-shrink:0"></span>
+        <h4>Read-Only Auditor</h4>
+        
+      </div>
+      <div class="flex gap-2 items-center">
+        <span class="badge2 badge-gray">45 perms</span>
+        <span class="badge2 badge-gray">31 users</span>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();document.querySelector(&#39;[onclick=\&#39;showPage(\&#39;builder\&#39;)\&#39;\&#39;]&#39;).click();document.querySelector(&#39;#page-builder select&#39;).value=&#39;readonly&#39;;loadBuilderRole(&#39;readonly&#39;)">Edit</button>
+      </div>
+    </div>
+    <p>View-only access to calls, reports, and inmate records</p>
+  </div>
+
+  <div class="role-card" onclick="this.classList.toggle(&#39;selected&#39;)">
+    <div class="flex justify-between items-center mb-2">
+      <div class="flex items-center gap-2">
+        <span style="width:14px;height:14px;border-radius:50%;background:#d97706;display:inline-block;flex-shrink:0"></span>
+        <h4>Medical Staff</h4>
+        <span class="text-xs text-gray">inherits from <strong>Read-Only Auditor</strong></span>
+      </div>
+      <div class="flex gap-2 items-center">
+        <span class="badge2 badge-gray">38 perms</span>
+        <span class="badge2 badge-orange">12 users</span>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();document.querySelector(&#39;[onclick=\&#39;showPage(\&#39;builder\&#39;)\&#39;\&#39;]&#39;).click();document.querySelector(&#39;#page-builder select&#39;).value=&#39;medical&#39;;loadBuilderRole(&#39;medical&#39;)">Edit</button>
+      </div>
+    </div>
+    <p>Medical records + inmate requests, no call/financial access</p>
+  </div>
+
+  <div class="role-card" onclick="this.classList.toggle(&#39;selected&#39;)">
+    <div class="flex justify-between items-center mb-2">
+      <div class="flex items-center gap-2">
+        <span style="width:14px;height:14px;border-radius:50%;background:#6366f1;display:inline-block;flex-shrink:0"></span>
+        <h4>Mailroom</h4>
+        
+      </div>
+      <div class="flex gap-2 items-center">
+        <span class="badge2 badge-gray">22 perms</span>
+        <span class="badge2 badge-purple">8 users</span>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();document.querySelector(&#39;[onclick=\&#39;showPage(\&#39;builder\&#39;)\&#39;\&#39;]&#39;).click();document.querySelector(&#39;#page-builder select&#39;).value=&#39;mailroom&#39;;loadBuilderRole(&#39;mailroom&#39;)">Edit</button>
+      </div>
+    </div>
+    <p>Mail scan, inmate mail approve/deny, photo messages</p>
+  </div>
+
+  <div class="role-card" onclick="this.classList.toggle(&#39;selected&#39;)">
+    <div class="flex justify-between items-center mb-2">
+      <div class="flex items-center gap-2">
+        <span style="width:14px;height:14px;border-radius:50%;background:#475569;display:inline-block;flex-shrink:0"></span>
+        <h4>IT Support</h4>
+        
+      </div>
+      <div class="flex gap-2 items-center">
+        <span class="badge2 badge-gray">31 perms</span>
+        <span class="badge2 badge-gray">5 users</span>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();document.querySelector(&#39;[onclick=\&#39;showPage(\&#39;builder\&#39;)\&#39;\&#39;]&#39;).click();document.querySelector(&#39;#page-builder select&#39;).value=&#39;it&#39;;loadBuilderRole(&#39;it&#39;)">Edit</button>
+      </div>
+    </div>
+    <p>Phone/circuit controls, trouble tickets, device management</p>
+  </div>
+</div>
+      </div>
+    </div>
+
+    <!-- PAGE: ROLE BUILDER -->
+    <div class="page" id="page-builder">
+      <div class="page-title">Role Builder</div>
+      <div class="page-sub">Define exactly which permissions a role includes. Changes apply to all users in this role (unless they have an individual override).</div>
+      <div class="two-col" style="align-items:start;">
+        <div>
+          <div class="card mb-3">
+            <div class="card-header"><h3>Select Role to Edit</h3></div>
+            <div class="card-body">
+              <select class="select w-full" onchange="loadBuilderRole(this.value)">
+                <option value="">-- Choose a role --</option>
+                <option value="superadmin">Super Admin</option>
+                <option value="admin">Facility Admin</option>
+                <option value="supervisor">Supervisor</option>
+                <option value="officer">Corrections Officer</option>
+                <option value="readonly">Read-Only Auditor</option>
+                <option value="medical">Medical Staff</option>
+                <option value="mailroom">Mailroom</option>
+                <option value="it">IT Support</option>
+              </select>
+              <div class="mt-3" id="builder-role-info" style="display: block;">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="font-bold" id="builder-role-name">Facility Admin</span>
+                  <span class="badge2 badge-blue" id="builder-role-users">87 users</span>
+                </div>
+                <div class="text-sm text-gray" id="builder-role-desc">Full facility management — inmates, calls, reports, video</div>
+                <hr class="divider">
+                <div class="text-sm mb-1"><strong>Inherits from:</strong></div>
+                <div class="flex gap-2">
+                  <span class="badge2 badge-gray">Corrections Officer</span>
+                  <span style="color:#888;font-size:.8rem;">+ additional perms</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card" id="builder-schedule-card" style="display: block;">
+            <div class="card-header"><h3>Time Schedule</h3></div>
+            <div class="card-body">
+              <select class="select w-full mb-2">
+                <option>24 / 7 (Always)</option>
+                <option>Business Hours Only</option>
+                <option>Custom Schedule</option>
+              </select>
+              <div class="text-xs text-gray">This default schedule applies to all permissions in this role unless overridden per-permission.</div>
+            </div>
+          </div>
+        </div>
+        <div id="builder-perms-panel"><div class="card"><div class="card-header"><h3>Facility Admin Permissions</h3><div class="flex gap-2"><button class="btn btn-ghost btn-sm" onclick="toggleAll(false)">Clear All</button><button class="btn btn-primary btn-sm" onclick="toggleAll(true)">Enable All</button></div></div><div class="card-body"><div class="perm-cat">Addresses</div><div class="perm-grid"><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> Addresses Lookup</div></div><div class="perm-cat">Inmates</div><div class="perm-grid"><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> Add Inmate Mail</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle"></span> Approve &amp; Deny Mail</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> Assign Requests</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> Clear Photo</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> Delete</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> Edit</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle"></span> Edit Private PIN</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle"></span> Generate PIN</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> Search</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> View</div></div><div class="perm-cat">Calls</div><div class="perm-grid"><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> Listen Live</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> Download</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> Block Number</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> Add Note</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> View Recordings</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> Search Calls</div></div><div class="perm-cat">Reports</div><div class="perm-grid"><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> Call Summary</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> Card Statement</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> Commission</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> PIN Balances</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> Phone Usage</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> Guard Check</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> Mail Report</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> SMS Report</div></div><div class="perm-cat">Admin</div><div class="perm-grid"><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle"></span> Back Office</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle"></span> Edit Fees</div></div><div class="perm-cat">Video</div><div class="perm-grid"><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> Approve Visitor</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> Schedule Visit</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> View Sessions</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle"></span> Live Monitor</div></div><div class="perm-cat">Users</div><div class="perm-grid"><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle"></span> Create User</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> Edit User</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> View Users</div></div><div class="perm-cat">Facilities</div><div class="perm-grid"><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle"></span> Create Facility</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> Edit Facility</div><div class="perm-item" onclick="this.querySelector(&#39;.toggle&#39;).classList.toggle(&#39;on&#39;)"><span class="toggle on"></span> View Facilities</div></div><div class="flex gap-2 mt-4"><button class="btn btn-success" onclick="alert(&#39;Role saved! All 87 users in this role will receive the updated permissions.&#39;)">💾 Save Role</button><button class="btn btn-ghost">Cancel</button></div></div></div></div>
+      </div>
+    </div>
+
+    <!-- PAGE: MIGRATION WIZARD -->
+    <div class="page" id="page-migration">
+      <div class="page-title">Migration Wizard</div>
+      <div class="page-sub">Automatically analyze your 380 legacy permission sets and map users to the closest matching new role — without losing any permissions.</div>
+
+      <div class="alert alert-warning">
+        ⚠️ <div><strong>No permissions will be removed.</strong> If a user's current permissions exceed a role's defaults, those extras are saved as individual overrides on their profile. Run a preview first before committing.</div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header"><h3>Step 1 — Analyze Legacy Permission Sets</h3></div>
+        <div class="card-body">
+          <p class="text-sm text-gray mb-3">Kinetic will scan all 380 permission sets, cluster them by similarity, and propose a role mapping for each.</p>
+          <div id="analyze-progress" style="display: block;">
+            <div class="progress-bar"><div class="progress-fill" id="analyze-bar" style="width: 100%;"></div></div>
+            <div class="text-sm text-gray mt-1" id="analyze-label">Done!</div>
+          </div>
+          <div id="analyze-results" style="display: block;">
+            <div class="alert alert-success mt-2">✅ Analysis complete! Found <strong>12 distinct permission clusters</strong> across 380 sets.</div>
+            <table class="table mt-3">
+              <thead><tr><th>Cluster</th><th>Legacy Sets</th><th>Mapped To Role</th><th>Confidence</th><th></th></tr></thead>
+              <tbody>
+                <tr><td>Full Admin Access</td><td><span class="badge2 badge-orange">47</span></td><td><span class="badge2 badge-blue">Facility Admin</span></td><td><div class="progress-bar" style="width:120px;display:inline-block"><div class="progress-fill" style="width:94%"></div></div> 94%</td><td><button class="btn btn-ghost btn-sm" onclick="openModal(&#39;modal-review&#39;)">Review</button></td></tr>
+                <tr><td>Admin No Medical</td><td><span class="badge2 badge-orange">31</span></td><td><span class="badge2 badge-blue">Facility Admin</span></td><td><div class="progress-bar" style="width:120px;display:inline-block"><div class="progress-fill" style="width:88%"></div></div> 88%</td><td><button class="btn btn-ghost btn-sm" onclick="openModal(&#39;modal-review&#39;)">Review</button></td></tr>
+                <tr><td>Officer Standard</td><td><span class="badge2 badge-orange">89</span></td><td><span class="badge2 badge-green">Corrections Officer</span></td><td><div class="progress-bar" style="width:120px;display:inline-block"><div class="progress-fill" style="width:97%"></div></div> 97%</td><td><button class="btn btn-ghost btn-sm" onclick="openModal(&#39;modal-review&#39;)">Review</button></td></tr>
+                <tr><td>Officer + Live Monitor</td><td><span class="badge2 badge-orange">22</span></td><td><span class="badge2 badge-green">Corrections Officer</span></td><td><div class="progress-bar" style="width:120px;display:inline-block"><div class="progress-fill" style="width:82%"></div></div> 82%</td><td><button class="btn btn-ghost btn-sm" onclick="openModal(&#39;modal-review&#39;)">Review</button></td></tr>
+                <tr><td>Read-Only / Auditor</td><td><span class="badge2 badge-orange">55</span></td><td><span class="badge2 badge-purple">Read-Only Auditor</span></td><td><div class="progress-bar" style="width:120px;display:inline-block"><div class="progress-fill" style="width:99%"></div></div> 99%</td><td><button class="btn btn-ghost btn-sm" onclick="openModal(&#39;modal-review&#39;)">Review</button></td></tr>
+                <tr><td>Medical Access</td><td><span class="badge2 badge-orange">18</span></td><td><span class="badge2 badge-orange">Medical Staff</span></td><td><div class="progress-bar" style="width:120px;display:inline-block"><div class="progress-fill" style="width:91%"></div></div> 91%</td><td><button class="btn btn-ghost btn-sm" onclick="openModal(&#39;modal-review&#39;)">Review</button></td></tr>
+                <tr><td>Mailroom / Mail Scan</td><td><span class="badge2 badge-orange">29</span></td><td><span class="badge2 badge-gray">Mailroom</span></td><td><div class="progress-bar" style="width:120px;display:inline-block"><div class="progress-fill" style="width:95%"></div></div> 95%</td><td><button class="btn btn-ghost btn-sm" onclick="openModal(&#39;modal-review&#39;)">Review</button></td></tr>
+                <tr><td style="color:#dc2626"><em>Unclassified (needs manual review)</em></td><td><span class="badge2 badge-orange">12</span></td><td><span class="badge2 badge-gray">—</span></td><td>—</td><td><button class="btn btn-warning btn-sm" onclick="openModal(&#39;modal-review&#39;)">Assign</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-3">
+            <button class="btn btn-primary" onclick="runAnalysis()">✅ Re-run Analysis</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4" id="step2-card" style="">
+        <div class="card-header"><h3>Step 2 — Preview Migration (Dry Run)</h3></div>
+        <div class="card-body">
+          <p class="text-sm text-gray mb-3">See exactly what will change for each user before committing. No actual changes are made in this step.</p>
+          <div class="two-col">
+            <div class="alert alert-success">✅ <strong>247 users</strong> will be cleanly mapped to a role with no overrides needed.</div>
+            <div class="alert alert-warning">⚠️ <strong>12 users</strong> have unique permissions that will become individual overrides.</div>
+          </div>
+          <button class="btn btn-success mt-2" onclick="openModal(&#39;modal-preview&#39;)">📋 Preview All Changes</button>
+        </div>
+      </div>
+
+      <div class="card" id="step3-card" style="">
+        <div class="card-header"><h3>Step 3 — Commit Migration</h3></div>
+        <div class="card-body">
+          <p class="text-sm text-gray mb-3">This will assign all users to their matched roles, preserving any extra permissions as overrides. This is reversible — you can roll back within 30 days.</p>
+          <div class="alert alert-info">📦 A full snapshot of all current permission sets will be saved before migration.</div>
+          <div class="flex gap-3 mt-3">
+            <button class="btn btn-danger">🚀 Commit Migration</button>
+            <button class="btn btn-ghost">📥 Export Preview CSV</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: USER ASSIGNMENTS -->
+    <div class="page" id="page-users">
+      <div class="page-title">User Role Assignments</div>
+      <div class="page-sub">View and manage which role each user is assigned to, and any individual permission overrides on top of that role.</div>
+      <div class="card">
+        <div class="card-header">
+          <h3>Users</h3>
+          <div class="flex gap-2">
+            <input class="input" style="width:220px;" placeholder="Search users...">
+            <select class="select">
+              <option>All Roles</option>
+              <option>Super Admin</option>
+              <option>Facility Admin</option>
+              <option>Corrections Officer</option>
+              <option>Read-Only Auditor</option>
+              <option>Medical Staff</option>
+              <option>Mailroom</option>
+              <option>IT Support</option>
+              <option>Unassigned</option>
+            </select>
+          </div>
+        </div>
+        <div class="card-body" style="padding:0;">
+          <table class="table">
+            <thead><tr><th>User</th><th>Domain</th><th>Assigned Role</th><th>Overrides</th><th>Last Login</th><th>Actions</th></tr></thead>
+            <tbody id="users-table-body">
+    <tr>
+      <td><strong>J. Smith</strong></td>
+      <td><span class="tag">System Wide</span></td>
+      <td><span class="badge2 badge-blue">Facility Admin</span></td>
+      <td><span class="text-gray text-xs">none</span></td>
+      <td class="text-xs text-gray">Apr 7, 2026</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openModal(&#39;modal-user-override&#39;)">Edit</button></td>
+    </tr>
+    <tr>
+      <td><strong>M. Davis</strong></td>
+      <td><span class="tag">System Wide</span></td>
+      <td><span class="badge2 badge-blue">Facility Admin</span></td>
+      <td><span class="text-gray text-xs">none</span></td>
+      <td class="text-xs text-gray">Apr 6, 2026</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openModal(&#39;modal-user-override&#39;)">Edit</button></td>
+    </tr>
+    <tr>
+      <td><strong>R. Johnson</strong></td>
+      <td><span class="tag">Garfield County OK</span></td>
+      <td><span class="badge2 badge-green">Corrections Officer</span></td>
+      <td><span class="badge2 badge-orange">2 overrides</span></td>
+      <td class="text-xs text-gray">Apr 8, 2026</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openModal(&#39;modal-user-override&#39;)">Edit</button></td>
+    </tr>
+    <tr>
+      <td><strong>T. Williams</strong></td>
+      <td><span class="tag">Rogers County OK</span></td>
+      <td><span class="badge2 badge-blue">Facility Admin</span></td>
+      <td><span class="badge2 badge-orange">1 override</span></td>
+      <td class="text-xs text-gray">Apr 5, 2026</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openModal(&#39;modal-user-override&#39;)">Edit</button></td>
+    </tr>
+    <tr>
+      <td><strong>K. Brown</strong></td>
+      <td><span class="tag">System Wide</span></td>
+      <td><span class="badge2 badge-gray">Read-Only Auditor</span></td>
+      <td><span class="text-gray text-xs">none</span></td>
+      <td class="text-xs text-gray">Mar 28, 2026</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openModal(&#39;modal-user-override&#39;)">Edit</button></td>
+    </tr>
+    <tr>
+      <td><strong>D. Garcia</strong></td>
+      <td><span class="tag">Pontotoc OK</span></td>
+      <td><span class="badge2 badge-orange">Medical Staff</span></td>
+      <td><span class="text-gray text-xs">none</span></td>
+      <td class="text-xs text-gray">Apr 7, 2026</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openModal(&#39;modal-user-override&#39;)">Edit</button></td>
+    </tr>
+    <tr>
+      <td><strong>A. Wilson</strong></td>
+      <td><span class="tag">System Wide</span></td>
+      <td><span class="badge2 badge-blue">Facility Admin</span></td>
+      <td><span class="badge2 badge-orange">1 override</span></td>
+      <td class="text-xs text-gray">Apr 4, 2026</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openModal(&#39;modal-user-override&#39;)">Edit</button></td>
+    </tr>
+    <tr>
+      <td><strong>C. Martinez</strong></td>
+      <td><span class="tag">System Wide</span></td>
+      <td><span class="badge2 badge-purple">Mailroom</span></td>
+      <td><span class="text-gray text-xs">none</span></td>
+      <td class="text-xs text-gray">Apr 8, 2026</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openModal(&#39;modal-user-override&#39;)">Edit</button></td>
+    </tr>
+    <tr>
+      <td><strong>B. Anderson</strong></td>
+      <td><span class="tag">System Wide</span></td>
+      <td><span class="badge2 badge-purple">Super Admin</span></td>
+      <td><span class="text-gray text-xs">none</span></td>
+      <td class="text-xs text-gray">Apr 8, 2026</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openModal(&#39;modal-user-override&#39;)">Edit</button></td>
+    </tr>
+    <tr>
+      <td><strong>L. Thomas</strong></td>
+      <td><span class="tag">System Wide</span></td>
+      <td><span class="badge2 badge-blue">Supervisor</span></td>
+      <td><span class="badge2 badge-orange">3 overrides</span></td>
+      <td class="text-xs text-gray">Apr 7, 2026</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openModal(&#39;modal-user-override&#39;)">Edit</button></td>
+    </tr>
+    <tr>
+      <td><strong>E. Jackson</strong></td>
+      <td><span class="tag">System Wide</span></td>
+      <td><span class="badge2 badge-gray">IT Support</span></td>
+      <td><span class="text-gray text-xs">none</span></td>
+      <td class="text-xs text-gray">Apr 1, 2026</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openModal(&#39;modal-user-override&#39;)">Edit</button></td>
+    </tr>
+    <tr>
+      <td><strong>N. White</strong></td>
+      <td><span class="tag">System Wide</span></td>
+      <td><span class="badge2 badge-green">Corrections Officer</span></td>
+      <td><span class="text-gray text-xs">none</span></td>
+      <td class="text-xs text-gray">Apr 8, 2026</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openModal(&#39;modal-user-override&#39;)">Edit</button></td>
+    </tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: COMPARE -->
+    <div class="page" id="page-compare">
+      <div class="page-title">Compare Roles</div>
+      <div class="page-sub">Side-by-side view of what each role can and cannot do across all permission categories.</div>
+      <div class="card">
+        <div class="card-header"><h3>Role Comparison Matrix</h3></div>
+        <div class="card-body" style="padding:0;overflow-x:auto;" id="compare-matrix"><table class="table"><thead><tr><th>Permission</th><th style="text-align:center"><span style="color:#7c3aed">Super&nbsp;Admin</span></th><th style="text-align:center"><span style="color:#2563eb">Facility&nbsp;Admin</span></th><th style="text-align:center"><span style="color:#0891b2">Supervisor</span></th><th style="text-align:center"><span style="color:#059669">Corrections&nbsp;Officer</span></th><th style="text-align:center"><span style="color:#6b7280">Read-Only&nbsp;Auditor</span></th><th style="text-align:center"><span style="color:#d97706">Medical&nbsp;Staff</span></th><th style="text-align:center"><span style="color:#6366f1">Mailroom</span></th><th style="text-align:center"><span style="color:#475569">IT&nbsp;Support</span></th></tr></thead><tbody><tr><td colspan="9" style="background:#f8f9fa;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;font-weight:700;color:#666;padding:8px 14px">Addresses</td></tr><tr><td>Addresses Lookup</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td colspan="9" style="background:#f8f9fa;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;font-weight:700;color:#666;padding:8px 14px">Inmates</td></tr><tr><td>Add Inmate Mail</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>Approve &amp; Deny Mail</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>Assign Requests</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>Clear Photo</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>Delete</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>Edit</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>Edit Private PIN</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>Generate PIN</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>Search</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>View</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td colspan="9" style="background:#f8f9fa;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;font-weight:700;color:#666;padding:8px 14px">Calls</td></tr><tr><td>Listen Live</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>Download</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>Block Number</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>Add Note</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>View Recordings</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>Search Calls</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td colspan="9" style="background:#f8f9fa;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;font-weight:700;color:#666;padding:8px 14px">Reports</td></tr><tr><td>Call Summary</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>Card Statement</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>Commission</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>PIN Balances</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>Phone Usage</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>Guard Check</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>Mail Report</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>SMS Report</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td colspan="9" style="background:#f8f9fa;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;font-weight:700;color:#666;padding:8px 14px">Admin</td></tr><tr><td>Back Office</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>Edit Fees</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td colspan="9" style="background:#f8f9fa;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;font-weight:700;color:#666;padding:8px 14px">Video</td></tr><tr><td>Approve Visitor</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>Schedule Visit</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>View Sessions</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>Live Monitor</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td colspan="9" style="background:#f8f9fa;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;font-weight:700;color:#666;padding:8px 14px">Users</td></tr><tr><td>Create User</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>Edit User</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>View Users</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td colspan="9" style="background:#f8f9fa;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;font-weight:700;color:#666;padding:8px 14px">Facilities</td></tr><tr><td>Create Facility</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>Edit Facility</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr><tr><td>View Facilities</td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#059669;font-size:1.1rem">✓</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td><td style="text-align:center"><span style="color:#e5e7eb;font-size:1rem">–</span></td></tr></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- PAGE: LEGACY -->
+    <div class="page" id="page-legacy">
+      <div class="page-title">Legacy Permission Sets <span class="badge2 badge-orange ml-2">380 sets</span></div>
+      <div class="page-sub">Your existing permission sets are preserved here in read-only mode. Use the Migration Wizard to move users to the new system.</div>
+      <div class="alert alert-warning">⚠️ These legacy sets are still active until you run the Migration Wizard. After migration, they will be archived.</div>
+      <div class="card">
+        <div class="card-header">
+          <h3>All Permission Sets</h3>
+          <input class="input" style="width:240px;" placeholder="Search...">
+        </div>
+        <div class="card-body" style="padding:0;">
+          <table class="table">
+            <thead><tr><th>Permission Set Name</th><th>Domain</th><th>Users</th><th>Matched Role</th><th>Status</th></tr></thead>
+            <tbody id="legacy-table">
+    <tr>
+      <td>Admin All no Medical</td>
+      <td><span class="tag">System Wide</span></td>
+      <td>14</td>
+      <td><span class="badge2 badge-blue">Facility Admin</span></td>
+      <td><span class="badge2 badge-green">✅ Clean map</span></td>
+    </tr>
+    <tr>
+      <td>Admin Live Monitor</td>
+      <td><span class="tag">Garfield County OK</span></td>
+      <td>2</td>
+      <td><span class="badge2 badge-blue">Corrections Officer</span></td>
+      <td><span class="badge2 badge-orange">⚠️ +override</span></td>
+    </tr>
+    <tr>
+      <td>Admin W/ Video + Photo sharing approval</td>
+      <td><span class="tag">System Wide</span></td>
+      <td>7</td>
+      <td><span class="badge2 badge-blue">Facility Admin</span></td>
+      <td><span class="badge2 badge-orange">⚠️ +override</span></td>
+    </tr>
+    <tr>
+      <td>Admin w/all access</td>
+      <td><span class="tag">System Wide</span></td>
+      <td>22</td>
+      <td><span class="badge2 badge-blue">Facility Admin</span></td>
+      <td><span class="badge2 badge-green">✅ Clean map</span></td>
+    </tr>
+    <tr>
+      <td>Admin w/all access (photo share)</td>
+      <td><span class="tag">System Wide</span></td>
+      <td>5</td>
+      <td><span class="badge2 badge-blue">Facility Admin</span></td>
+      <td><span class="badge2 badge-orange">⚠️ +override</span></td>
+    </tr>
+    <tr>
+      <td>Admin w/all access + ECHO</td>
+      <td><span class="tag">System Wide</span></td>
+      <td>3</td>
+      <td><span class="badge2 badge-blue">Facility Admin</span></td>
+      <td><span class="badge2 badge-orange">⚠️ +override</span></td>
+    </tr>
+    <tr>
+      <td>Admin w/all Access - No USERs</td>
+      <td><span class="tag">Pontotoc OK</span></td>
+      <td>8</td>
+      <td><span class="badge2 badge-blue">Facility Admin</span></td>
+      <td><span class="badge2 badge-green">✅ Clean map</span></td>
+    </tr>
+    <tr>
+      <td>Admin w/all access/add mail</td>
+      <td><span class="tag">System Wide</span></td>
+      <td>4</td>
+      <td><span class="badge2 badge-blue">Facility Admin</span></td>
+      <td><span class="badge2 badge-orange">⚠️ +override</span></td>
+    </tr>
+    <tr>
+      <td>Admin w/livemon</td>
+      <td><span class="tag">System Wide</span></td>
+      <td>6</td>
+      <td><span class="badge2 badge-blue">Facility Admin</span></td>
+      <td><span class="badge2 badge-orange">⚠️ +override</span></td>
+    </tr>
+    <tr>
+      <td>Admin w/Mail Scan</td>
+      <td><span class="tag">Rogers County OK</span></td>
+      <td>3</td>
+      <td><span class="badge2 badge-blue">Mailroom</span></td>
+      <td><span class="badge2 badge-green">✅ Clean map</span></td>
+    </tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL: New Role -->
+<div class="modal-overlay" id="modal-new-role">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Create New Role</h3>
+      <span class="modal-close" onclick="closeModal(&#39;modal-new-role&#39;)">✕</span>
+    </div>
+    <div class="modal-body">
+      <div class="mb-3"><label class="text-sm font-bold">Role Name</label><input class="input mt-1 w-full" placeholder="e.g., Senior Officer"></div>
+      <div class="mb-3"><label class="text-sm font-bold">Description</label><input class="input mt-1 w-full" placeholder="Brief description of what this role can do"></div>
+      <div class="mb-3"><label class="text-sm font-bold">Inherit From (optional)</label>
+        <select class="select w-full mt-1">
+          <option value="">None – start from scratch</option>
+          <option>Corrections Officer</option><option>Facility Admin</option><option>Read-Only Auditor</option>
+        </select>
+        <div class="text-xs text-gray mt-1">Inheriting means this role starts with all the parent role's permissions, then you add or remove from there.</div>
+      </div>
+      <div class="mb-3"><label class="text-sm font-bold">Default Domain Scope</label>
+        <select class="select w-full mt-1"><option>System Wide</option><option>Facility-specific</option></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal(&#39;modal-new-role&#39;)">Cancel</button>
+      <button class="btn btn-primary">Create Role &amp; Configure Permissions →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Review Cluster -->
+<div class="modal-overlay" id="modal-review">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Review Cluster: Full Admin Access (47 sets)</h3>
+      <span class="modal-close" onclick="closeModal(&#39;modal-review&#39;)">✕</span>
+    </div>
+    <div class="modal-body">
+      <div class="alert alert-success mb-3">✅ 94% confidence match to <strong>Facility Admin</strong> role</div>
+      <div class="two-col mb-3">
+        <div>
+          <div class="font-bold text-sm mb-2">Permissions in Cluster (Enabled)</div>
+          <div class="text-xs text-gray">These are the permissions most users in this cluster share</div>
+        </div>
+        <div>
+          <div class="font-bold text-sm mb-2">Override Differences</div>
+          <div class="text-xs text-gray">6% of users have slight variations — saved as overrides</div>
+        </div>
+      </div>
+      <div class="perm-grid mb-3" style="grid-template-columns:repeat(2,1fr);">
+        <div class="perm-item"><span class="toggle on"></span> Addresses Lookup</div>
+        <div class="perm-item"><span class="toggle on"></span> Add Inmate Mail</div>
+        <div class="perm-item"><span class="toggle on"></span> Assign Inmate Requests</div>
+        <div class="perm-item"><span class="toggle on"></span> Clear Inmate Photo</div>
+        <div class="perm-item"><span class="toggle on"></span> Delete Inmate</div>
+        <div class="perm-item"><span class="toggle on"></span> Reports - Call Summary</div>
+        <div class="perm-item"><span class="toggle" style="background:#e5e7eb"></span> <span style="color:#dc2626">Medical Records</span></div>
+        <div class="perm-item"><span class="toggle" style="background:#e5e7eb"></span> <span style="color:#dc2626">Back Office Admin</span></div>
+      </div>
+      <div class="alert alert-info">3 users in this cluster have <strong>Medical Records</strong> enabled. They will receive an individual override keeping this permission.</div>
+      <div class="mb-3">
+        <label class="text-sm font-bold">Map this cluster to:</label>
+        <select class="select w-full mt-1">
+          <option>Facility Admin</option><option>Super Admin</option><option>Corrections Officer</option><option>Custom (create new role)</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal(&#39;modal-review&#39;)">Cancel</button>
+      <button class="btn btn-success" onclick="closeModal(&#39;modal-review&#39;)">✅ Confirm Mapping</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Preview -->
+<div class="modal-overlay" id="modal-preview">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Migration Preview — All 259 Users</h3>
+      <span class="modal-close" onclick="closeModal(&#39;modal-preview&#39;)">✕</span>
+    </div>
+    <div class="modal-body">
+      <div class="alert alert-success mb-3">✅ No permissions will be lost. Users with extras get overrides.</div>
+      <table class="table">
+        <thead><tr><th>User</th><th>Current Set</th><th>New Role</th><th>Overrides Added</th></tr></thead>
+        <tbody>
+          <tr><td>J. Smith</td><td class="text-xs text-gray">Admin w/all access</td><td><span class="badge2 badge-blue">Facility Admin</span></td><td>—</td></tr>
+          <tr><td>M. Davis</td><td class="text-xs text-gray">Admin All no Medical</td><td><span class="badge2 badge-blue">Facility Admin</span></td><td>—</td></tr>
+          <tr><td>R. Johnson</td><td class="text-xs text-gray">Officer + Live Monitor</td><td><span class="badge2 badge-green">Corrections Officer</span></td><td><span class="tag">+Live Monitor</span></td></tr>
+          <tr><td>T. Williams</td><td class="text-xs text-gray">Admin w/Mail Scan</td><td><span class="badge2 badge-blue">Facility Admin</span></td><td><span class="tag">+Mail Scan</span></td></tr>
+          <tr><td>K. Brown</td><td class="text-xs text-gray">Read Only</td><td><span class="badge2 badge-purple">Read-Only Auditor</span></td><td>—</td></tr>
+          <tr><td>D. Garcia</td><td class="text-xs text-gray">Medical Full Access</td><td><span class="badge2 badge-orange">Medical Staff</span></td><td>—</td></tr>
+          <tr><td>A. Wilson</td><td class="text-xs text-gray">Admin W/ Video + Photo</td><td><span class="badge2 badge-blue">Facility Admin</span></td><td><span class="tag">+Photo Approve</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal(&#39;modal-preview&#39;)">Close</button>
+      <button class="btn btn-ghost">📥 Export CSV</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: User Override Editor -->
+<div class="modal-overlay" id="modal-user-override">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Edit User: <span id="override-user-name">R. Johnson</span></h3>
+      <span class="modal-close" onclick="closeModal(&#39;modal-user-override&#39;)">✕</span>
+    </div>
+    <div class="modal-body">
+      <div class="flex items-center gap-3 mb-3">
+        <div>
+          <div class="text-sm font-bold mb-1">Base Role</div>
+          <select class="select" style="width:220px;">
+            <option>Corrections Officer</option><option>Facility Admin</option><option>Read-Only Auditor</option><option>Medical Staff</option>
+          </select>
+        </div>
+        <div class="text-gray" style="margin-top:20px;font-size:1.3rem;">+</div>
+        <div>
+          <div class="text-sm font-bold mb-1">Individual Overrides</div>
+          <div class="chip-group" id="override-chips">
+            <span class="chip">Live Monitor <span class="remove" onclick="this.parentElement.remove()">×</span></span>
+            <span class="chip">Video Monitor <span class="remove" onclick="this.parentElement.remove()">×</span></span>
+          </div>
+          <button class="btn btn-ghost btn-sm mt-2" onclick="openModal(&#39;modal-add-override&#39;)">+ Add Override</button>
+        </div>
+      </div>
+      <hr class="divider">
+      <div class="text-sm font-bold mb-2">Effective Permissions (Role + Overrides)</div>
+      <div class="text-xs text-gray mb-2">Green = from role · Blue = individual override · Gray = not granted</div>
+      <div class="perm-grid">
+        <div class="perm-item" style="background:#f0fdf4;border-color:#a7f3d0"><span class="toggle on"></span> Addresses Lookup <span class="text-xs text-gray">(role)</span></div>
+        <div class="perm-item" style="background:#eff6ff;border-color:#bfdbfe"><span class="toggle on" style="background:#2563eb"></span> Live Monitor <span class="text-xs text-gray">(override)</span></div>
+        <div class="perm-item" style="background:#f0fdf4;border-color:#a7f3d0"><span class="toggle on"></span> Add Inmate Mail <span class="text-xs text-gray">(role)</span></div>
+        <div class="perm-item" style="background:#f3f4f6;border-color:#e5e7eb"><span class="toggle"></span> Back Office <span class="text-xs text-gray">(not granted)</span></div>
+        <div class="perm-item" style="background:#eff6ff;border-color:#bfdbfe"><span class="toggle on" style="background:#2563eb"></span> Video Monitor <span class="text-xs text-gray">(override)</span></div>
+        <div class="perm-item" style="background:#f0fdf4;border-color:#a7f3d0"><span class="toggle on"></span> Phone Calls View <span class="text-xs text-gray">(role)</span></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal(&#39;modal-user-override&#39;)">Cancel</button>
+      <button class="btn btn-success" onclick="closeModal(&#39;modal-user-override&#39;)">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// PAGE NAVIGATION
+function showPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const page = document.getElementById('page-' + pageId);
+  if (page) page.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(nav => {
+    const oc = nav.getAttribute('onclick') || '';
+    if (oc.includes("'" + pageId + "'") || oc.includes('"' + pageId + '"')) {
+      nav.classList.add('active');
+    }
+  });
+}
+
+// MODAL CONTROLS
+function openModal(id) {
+  const m = document.getElementById(id);
+  if (m) m.classList.add('open');
+}
+function closeModal(id) {
+  const m = document.getElementById(id);
+  if (m) m.classList.remove('open');
+}
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('modal-overlay')) e.target.classList.remove('open');
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+});
+
+// ROLE SEARCH FILTER
+function filterRoles(val) {
+  const q = val.toLowerCase();
+  document.querySelectorAll('#roles-list .role-card').forEach(card => {
+    card.style.display = card.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+// ROLE DATA
+const roleData = {
+  superadmin: { name:'Super Admin', users:'3 users', color:'#7c3aed', desc:'Full system access including back-office and admin controls', inherits:null,
+    perms:{ 'Addresses':{'Addresses Lookup':true}, 'Inmates':{'Add Inmate Mail':true,'Approve & Deny Mail':true,'Assign Requests':true,'Clear Photo':true,'Delete':true,'Edit':true,'Edit Private PIN':true,'Generate PIN':true,'Search':true,'View':true}, 'Calls':{'Listen Live':true,'Download':true,'Block Number':true,'Add Note':true,'View Recordings':true,'Search Calls':true}, 'Reports':{'Call Summary':true,'Card Statement':true,'Commission':true,'PIN Balances':true,'Phone Usage':true,'Guard Check':true,'Mail Report':true,'SMS Report':true}, 'Admin':{'Back Office':true,'Edit Fees':true}, 'Video':{'Approve Visitor':true,'Schedule Visit':true,'View Sessions':true,'Live Monitor':true}, 'Users':{'Create User':true,'Edit User':true,'View Users':true}, 'Facilities':{'Create Facility':true,'Edit Facility':true,'View Facilities':true} }},
+  admin: { name:'Facility Admin', users:'87 users', color:'#2563eb', desc:'Full facility management — inmates, calls, reports, video', inherits:'Corrections Officer',
+    perms:{ 'Addresses':{'Addresses Lookup':true}, 'Inmates':{'Add Inmate Mail':true,'Approve & Deny Mail':false,'Assign Requests':true,'Clear Photo':true,'Delete':true,'Edit':true,'Edit Private PIN':false,'Generate PIN':false,'Search':true,'View':true}, 'Calls':{'Listen Live':true,'Download':true,'Block Number':true,'Add Note':true,'View Recordings':true,'Search Calls':true}, 'Reports':{'Call Summary':true,'Card Statement':true,'Commission':true,'PIN Balances':true,'Phone Usage':true,'Guard Check':true,'Mail Report':true,'SMS Report':true}, 'Admin':{'Back Office':false,'Edit Fees':false}, 'Video':{'Approve Visitor':true,'Schedule Visit':true,'View Sessions':true,'Live Monitor':false}, 'Users':{'Create User':false,'Edit User':true,'View Users':true}, 'Facilities':{'Create Facility':false,'Edit Facility':true,'View Facilities':true} }},
+  supervisor: { name:'Supervisor', users:'24 users', color:'#0891b2', desc:'Officer plus limited admin: user management, schedules', inherits:'Corrections Officer',
+    perms:{ 'Addresses':{'Addresses Lookup':true}, 'Inmates':{'Add Inmate Mail':true,'Approve & Deny Mail':false,'Assign Requests':true,'Clear Photo':true,'Delete':false,'Edit':true,'Edit Private PIN':false,'Generate PIN':false,'Search':true,'View':true}, 'Calls':{'Listen Live':true,'Download':false,'Block Number':true,'Add Note':true,'View Recordings':true,'Search Calls':true}, 'Reports':{'Call Summary':true,'Card Statement':false,'Commission':false,'PIN Balances':false,'Phone Usage':true,'Guard Check':true,'Mail Report':false,'SMS Report':false}, 'Admin':{'Back Office':false,'Edit Fees':false}, 'Video':{'Approve Visitor':false,'Schedule Visit':false,'View Sessions':true,'Live Monitor':false}, 'Users':{'Create User':false,'Edit User':false,'View Users':true}, 'Facilities':{'Create Facility':false,'Edit Facility':false,'View Facilities':true} }},
+  officer: { name:'Corrections Officer', users:'134 users', color:'#059669', desc:'Day-to-day operations: inmates, calls, messaging, watches', inherits:null,
+    perms:{ 'Addresses':{'Addresses Lookup':true}, 'Inmates':{'Add Inmate Mail':true,'Approve & Deny Mail':false,'Assign Requests':true,'Clear Photo':false,'Delete':false,'Edit':true,'Edit Private PIN':false,'Generate PIN':false,'Search':true,'View':true}, 'Calls':{'Listen Live':true,'Download':false,'Block Number':false,'Add Note':true,'View Recordings':true,'Search Calls':true}, 'Reports':{'Call Summary':true,'Card Statement':false,'Commission':false,'PIN Balances':false,'Phone Usage':false,'Guard Check':true,'Mail Report':false,'SMS Report':false}, 'Admin':{'Back Office':false,'Edit Fees':false}, 'Video':{'Approve Visitor':false,'Schedule Visit':false,'View Sessions':true,'Live Monitor':false}, 'Users':{'Create User':false,'Edit User':false,'View Users':false}, 'Facilities':{'Create Facility':false,'Edit Facility':false,'View Facilities':true} }},
+  readonly: { name:'Read-Only Auditor', users:'18 users', color:'#6b7280', desc:'View-only access for audits and compliance review', inherits:null,
+    perms:{ 'Addresses':{'Addresses Lookup':true}, 'Inmates':{'Add Inmate Mail':false,'Approve & Deny Mail':false,'Assign Requests':false,'Clear Photo':false,'Delete':false,'Edit':false,'Edit Private PIN':false,'Generate PIN':false,'Search':true,'View':true}, 'Calls':{'Listen Live':false,'Download':false,'Block Number':false,'Add Note':false,'View Recordings':true,'Search Calls':true}, 'Reports':{'Call Summary':true,'Card Statement':false,'Commission':false,'PIN Balances':true,'Phone Usage':true,'Guard Check':false,'Mail Report':false,'SMS Report':false}, 'Admin':{'Back Office':false,'Edit Fees':false}, 'Video':{'Approve Visitor':false,'Schedule Visit':false,'View Sessions':false,'Live Monitor':false}, 'Users':{'Create User':false,'Edit User':false,'View Users':false}, 'Facilities':{'Create Facility':false,'Edit Facility':false,'View Facilities':true} }},
+  medical: { name:'Medical Staff', users:'11 users', color:'#d97706', desc:'Medical records, inmate health, limited communications view', inherits:null,
+    perms:{ 'Addresses':{'Addresses Lookup':false}, 'Inmates':{'Add Inmate Mail':false,'Approve & Deny Mail':false,'Assign Requests':false,'Clear Photo':false,'Delete':false,'Edit':true,'Edit Private PIN':false,'Generate PIN':false,'Search':true,'View':true}, 'Calls':{'Listen Live':false,'Download':false,'Block Number':false,'Add Note':false,'View Recordings':false,'Search Calls':false}, 'Reports':{'Call Summary':false,'Card Statement':false,'Commission':false,'PIN Balances':false,'Phone Usage':false,'Guard Check':false,'Mail Report':false,'SMS Report':false}, 'Admin':{'Back Office':false,'Edit Fees':false}, 'Video':{'Approve Visitor':false,'Schedule Visit':false,'View Sessions':false,'Live Monitor':false}, 'Users':{'Create User':false,'Edit User':false,'View Users':false}, 'Facilities':{'Create Facility':false,'Edit Facility':false,'View Facilities':true} }},
+  mailroom: { name:'Mailroom', users:'8 users', color:'#6366f1', desc:'Mail scan, inmate mail approve/deny, photo messages', inherits:null,
+    perms:{ 'Addresses':{'Addresses Lookup':false}, 'Inmates':{'Add Inmate Mail':true,'Approve & Deny Mail':true,'Assign Requests':false,'Clear Photo':false,'Delete':false,'Edit':false,'Edit Private PIN':false,'Generate PIN':false,'Search':false,'View':false}, 'Calls':{'Listen Live':false,'Download':false,'Block Number':false,'Add Note':false,'View Recordings':false,'Search Calls':false}, 'Reports':{'Call Summary':false,'Card Statement':false,'Commission':false,'PIN Balances':false,'Phone Usage':false,'Guard Check':false,'Mail Report':true,'SMS Report':false}, 'Admin':{'Back Office':false,'Edit Fees':false}, 'Video':{'Approve Visitor':false,'Schedule Visit':false,'View Sessions':false,'Live Monitor':false}, 'Users':{'Create User':false,'Edit User':false,'View Users':false}, 'Facilities':{'Create Facility':false,'Edit Facility':false,'View Facilities':false} }},
+  it: { name:'IT Support', users:'5 users', color:'#475569', desc:'Phone/circuit controls, trouble tickets, device management', inherits:null,
+    perms:{ 'Addresses':{'Addresses Lookup':false}, 'Inmates':{'Add Inmate Mail':false,'Approve & Deny Mail':false,'Assign Requests':false,'Clear Photo':false,'Delete':false,'Edit':false,'Edit Private PIN':false,'Generate PIN':false,'Search':false,'View':false}, 'Calls':{'Listen Live':false,'Download':false,'Block Number':false,'Add Note':false,'View Recordings':false,'Search Calls':false}, 'Reports':{'Call Summary':false,'Card Statement':false,'Commission':false,'PIN Balances':false,'Phone Usage':true,'Guard Check':false,'Mail Report':false,'SMS Report':false}, 'Admin':{'Back Office':false,'Edit Fees':false}, 'Video':{'Approve Visitor':false,'Schedule Visit':false,'View Sessions':false,'Live Monitor':false}, 'Users':{'Create User':false,'Edit User':false,'View Users':false}, 'Facilities':{'Create Facility':false,'Edit Facility':false,'View Facilities':false} }}
+};
+
+// ROLE BUILDER
+function loadBuilderRole(roleKey) {
+  if (!roleKey) return;
+  const role = roleData[roleKey];
+  if (!role) return;
+  document.getElementById('builder-role-name').textContent = role.name;
+  document.getElementById('builder-role-users').textContent = role.users;
+  document.getElementById('builder-role-desc').textContent = role.desc;
+  document.getElementById('builder-role-info').style.display = 'block';
+  const info = document.getElementById('builder-role-info');
+  const inheritBadge = info.querySelector('.flex.gap-2');
+  const inheritLabel = info.querySelector('.text-sm.mb-1');
+  if (role.inherits) {
+    inheritBadge.innerHTML = '<span class="badge2 badge-gray">' + role.inherits + '</span><span style="color:#888;font-size:.8rem;">+ additional perms</span>';
+    if (inheritLabel) inheritLabel.style.display = '';
+    inheritBadge.style.display = '';
+  } else {
+    inheritBadge.innerHTML = '<span class="badge2 badge-gray" style="color:#aaa">None</span>';
+    if (inheritLabel) inheritLabel.style.display = 'none';
+  }
+  const panel = document.getElementById('builder-perms-panel');
+  let html = '<div class="card"><div class="card-header"><h3>' + role.name + ' Permissions</h3>'
+    + '<div class="flex gap-2"><button class="btn btn-ghost btn-sm" onclick="toggleAll(false)">Clear All</button>'
+    + '<button class="btn btn-primary btn-sm" onclick="toggleAll(true)">Enable All</button></div></div>'
+    + '<div class="card-body">';
+  for (const [cat, perms] of Object.entries(role.perms)) {
+    html += '<div class="perm-cat">' + cat + '</div><div class="perm-grid">';
+    for (const [pname, enabled] of Object.entries(perms)) {
+      html += '<div class="perm-item" onclick="this.querySelector(\'.toggle\').classList.toggle(\'on\')">'
+        + '<span class="toggle' + (enabled ? ' on' : '') + '"></span> ' + pname + '</div>';
+    }
+    html += '</div>';
+  }
+  html += '<div class="flex gap-2 mt-4"><button class="btn btn-success" onclick="alert(\'Role saved! All ' + role.users.replace("'","\'") + ' in this role will receive the updated permissions.\')">💾 Save Role</button>'
+    + '<button class="btn btn-ghost">Cancel</button></div></div></div>';
+  panel.innerHTML = html;
+  document.getElementById('builder-schedule-card').style.display = 'block';
+}
+
+// TOGGLE ALL PERMS IN BUILDER
+function toggleAll(state) {
+  document.querySelectorAll('#builder-perms-panel .toggle').forEach(t => {
+    if (state) t.classList.add('on'); else t.classList.remove('on');
+  });
+}
+
+// MIGRATION ANALYSIS ANIMATION
+function runAnalysis() {
+  const bar = document.getElementById('analyze-bar');
+  const label = document.getElementById('analyze-label');
+  const results = document.getElementById('analyze-results');
+  if (!bar) return;
+  results.style.display = 'none';
+  bar.style.width = '0%';
+  label.textContent = 'Scanning permission sets...';
+  let pct = 0;
+  const msgs = ['Scanning permission sets...','Clustering by similarity...','Mapping to roles...','Checking for overrides...','Done!'];
+  const iv = setInterval(() => {
+    pct = Math.min(pct + Math.random() * 15 + 5, 100);
+    bar.style.width = pct + '%';
+    label.textContent = msgs[Math.min(Math.floor(pct / 25), 4)];
+    if (pct >= 100) { clearInterval(iv); setTimeout(() => { results.style.display = 'block'; }, 300); }
+  }, 200);
+}
+
+// USER TABLE SEARCH/FILTER
+function filterUsers() {
+  const page = document.getElementById('page-users');
+  const q = (page.querySelector('input').value || '').toLowerCase();
+  const role = page.querySelector('select').value;
+  document.querySelectorAll('#users-table-body tr').forEach(row => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = ((!q || text.includes(q)) && (role === 'All Roles' || text.includes(role.toLowerCase()))) ? '' : 'none';
+  });
+}
+
+// ADD OVERRIDE MODAL
+function addOverride(permName) {
+  const chips = document.getElementById('override-chips');
+  if (chips) {
+    const existing = Array.from(chips.querySelectorAll('.chip')).map(c => c.textContent.replace('x','').replace('×','').trim());
+    if (!existing.includes(permName)) {
+      const chip = document.createElement('span');
+      chip.className = 'chip';
+      chip.innerHTML = permName + ' <span class="remove" onclick="this.parentElement.remove()">×</span>';
+      chips.appendChild(chip);
+    }
+  }
+  closeModal('modal-add-override');
+}
+
+// INIT on load
+document.addEventListener('DOMContentLoaded', function() {
+  // Wire up user search/filter
+  const usersPage = document.getElementById('page-users');
+  if (usersPage) {
+    const inp = usersPage.querySelector('input');
+    const sel = usersPage.querySelector('select');
+    if (inp) inp.addEventListener('input', filterUsers);
+    if (sel) sel.addEventListener('change', filterUsers);
+  }
+  // Create the Add Override modal if not present
+  if (!document.getElementById('modal-add-override')) {
+    const perms = ['Addresses Lookup','Add Inmate Mail','Approve & Deny Mail','Assign Requests',
+      'Clear Photo','Delete Inmate','Edit Inmate','Listen Live','Block Number','View Recordings',
+      'Search Calls','Back Office','Live Monitor','Video Monitor','Mail Report','Guard Check',
+      'Create User','Edit User','View Users','View Facilities'];
+    let html = '<div class="modal-overlay" id="modal-add-override"><div class="modal">'
+      + '<div class="modal-header"><h3>Add Permission Override</h3>'
+      + '<span class="modal-close" onclick="closeModal(\'modal-add-override\')">✕</span></div>'
+      + '<div class="modal-body"><p class="text-sm text-gray mb-3">Select a permission to add as an individual override for this user.</p>'
+      + '<div class="perm-grid">';
+    perms.forEach(p => {
+      html += '<div class="perm-item" style="cursor:pointer" onclick="addOverride(\'' + p + '\')">'
+        + '<span class="toggle"></span> ' + p + '</div>';
+    });
+    html += '</div></div><div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal(\'modal-add-override\')">Close</button></div></div></div>';
+    document.body.insertAdjacentHTML('beforeend', html);
+  }
+  // Pre-load Facility Admin in builder
+  const builderSel = document.querySelector('#page-builder select');
+  if (builderSel) { builderSel.value = 'admin'; loadBuilderRole('admin'); }
+});
+</script>
+</body>
+</html>

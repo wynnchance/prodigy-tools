@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Circuits — Facility Configuration</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:   #0d2137;
+  --blue:   #1460a8;
+  --accent: #1479c8;
+  --gold:   #a86000;
+  --green:  #1a8c44;
+  --rule:   #cdd8e3;
+  --text:   #1a2a3a;
+  --dim:    #2a4a6a;
+  --muted:  #5a7a9a;
+  --bg:     #eef2f7;
+  --s0:     #ffffff;
+  --s1:     #f4f7fb;
+  --locked: #f0f4f8;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Rajdhani',sans-serif; background:var(--bg); color:var(--text); font-size:13px; }
+
+.page { max-width:960px; margin:20px auto; background:var(--s0); border:1px solid var(--rule); border-radius:8px; overflow:visible; box-shadow:0 4px 24px rgba(13,33,55,0.12); }
+/* Clip rounded corners on header/footer only, not body content */
+.hdr { border-radius:8px 8px 0 0; }
+.foot { border-radius:0 0 8px 8px; }
+
+/* HEADER */
+.hdr { background:var(--navy); padding:16px 28px 13px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+.hdr-left { display:flex; align-items:center; gap:13px; }
+.logo { width:44px; height:44px; background:linear-gradient(135deg,#2a9ae8,#1460a8); border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:900; color:#fff; letter-spacing:-1px; flex-shrink:0; }
+.brand { font-size:19px; font-weight:700; letter-spacing:4px; color:#fff; }
+.sub-brand { font-size:10px; letter-spacing:2px; color:#7aaad4; margin-top:2px; }
+.hdr-right { display:flex; flex-direction:column; align-items:flex-end; gap:5px; }
+.hdr-field { display:flex; align-items:center; gap:6px; font-size:9px; font-weight:700; letter-spacing:2px; color:#7aaad4; }
+.hdr-field input { background:transparent; border:none; border-bottom:1px solid #2a5a8a; color:#cce0f8; font-family:'Rajdhani',sans-serif; font-size:12px; outline:none; padding:2px 4px; }
+.hdr-field input[type=text] { width:150px; }
+
+/* FACILITY BAR */
+.fac-bar { background:var(--s1); border-bottom:1.5px solid var(--rule); padding:12px 28px; display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap; }
+.fac-f { display:flex; flex-direction:column; gap:4px; }
+.fac-f.g1 { flex:1; min-width:160px; }
+.fac-f.g2 { flex:2; min-width:200px; }
+.fac-lbl { font-size:9px; font-weight:700; letter-spacing:2px; color:var(--muted); text-transform:uppercase; }
+.fac-inp { background:var(--s0); border:1.5px solid var(--rule); border-radius:5px; color:var(--text); font-family:'Rajdhani',sans-serif; font-size:13px; font-weight:600; padding:7px 10px; outline:none; width:100%; transition:border-color .15s; }
+.fac-inp:focus { border-color:var(--accent); }
+select.fac-inp { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235a7a9a'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 9px center; cursor:pointer; }
+
+/* TABS */
+.tabs { display:flex; border-bottom:2px solid var(--rule); background:var(--s1); padding:0 28px; }
+.tab { padding:11px 18px; font-family:'Rajdhani',sans-serif; font-size:10px; font-weight:700; letter-spacing:2.5px; color:var(--muted); border:none; background:transparent; border-bottom:2px solid transparent; margin-bottom:-2px; cursor:pointer; display:flex; align-items:center; gap:7px; transition:all .15s; }
+.tab:hover { color:var(--dim); }
+.tab.on { color:var(--accent); border-bottom-color:var(--accent); }
+.tbadge { font-size:9px; padding:2px 7px; border-radius:10px; background:#e4eef6; color:var(--muted); font-weight:700; letter-spacing:1px; }
+.tab.on .tbadge { background:#dceefa; color:var(--accent); }
+
+/* PANELS */
+.panel { display:none; }
+.panel.on { display:block; }
+
+/* BODY */
+.body { padding:20px 24px; display:flex; flex-direction:column; gap:16px; }
+
+/* SECTIONS */
+.sec { border:1.5px solid var(--rule); border-radius:7px; overflow:hidden; }
+.sec-hdr { background:var(--navy); padding:9px 15px; display:flex; align-items:center; justify-content:space-between; }
+.sec-title { font-size:10px; font-weight:700; letter-spacing:3px; color:#a0c8e8; }
+.sec-sub { font-size:9px; color:#4a7a9a; letter-spacing:1px; }
+.sec-body { padding:14px; background:var(--s0); }
+
+/* COMMISSIONS */
+.cg { display:grid; grid-template-columns:repeat(5,1fr); }
+.cc { padding:13px 12px; border-right:1px solid var(--rule); display:flex; flex-direction:column; gap:8px; background:var(--s0); }
+.cc:last-child { border-right:none; }
+.cc.lk { background:var(--locked); }
+.ct { display:flex; align-items:center; gap:6px; }
+.ci { font-size:14px; }
+.cl { font-size:11px; font-weight:600; color:var(--dim); }
+.cw { display:flex; align-items:center; gap:4px; }
+.cn { width:100%; background:#fff; border:1.5px solid var(--rule); border-radius:5px; color:#1a2a3a; font-family:'Rajdhani',sans-serif; font-size:17px; font-weight:700; padding:6px 8px; outline:none; text-align:right; transition:border-color .15s; -webkit-appearance:none; }
+.cn:focus { border-color:var(--accent); box-shadow:0 0 0 2px rgba(20,121,200,0.15); }
+.cn::placeholder { color:#b0c0d0; font-weight:400; }
+.cp { font-size:12px; color:var(--muted); flex-shrink:0; }
+.cf { font-size:10px; color:var(--muted); font-weight:600; display:flex; align-items:center; gap:4px; }
+
+/* APP COLS */
+.app-cols { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.ac { border:1.5px solid var(--rule); border-radius:6px; overflow:hidden; }
+.ach { display:flex; align-items:center; justify-content:space-between; padding:9px 13px; background:var(--s1); border-bottom:1px solid var(--rule); }
+.act { font-size:10px; font-weight:700; letter-spacing:3px; color:var(--dim); }
+.ab { font-size:8px; font-weight:700; letter-spacing:2px; padding:3px 7px; border-radius:3px; }
+.ab-g { background:rgba(168,96,0,.1); color:var(--gold); border:1px solid rgba(168,96,0,.25); }
+.ab-b { background:rgba(20,121,200,.1); color:var(--accent); border:1px solid rgba(20,121,200,.25); }
+.ar { display:flex; align-items:center; gap:9px; padding:8px 13px; border-bottom:1px solid #eef2f6; background:var(--s0); transition:background .1s; cursor:pointer; }
+.ar:last-child { border-bottom:none; }
+.ar:hover { background:#f0f5fa; }
+.acb { width:15px; height:15px; border-radius:3px; border:1.5px solid #b0c4d8; appearance:none; cursor:pointer; flex-shrink:0; position:relative; transition:all .12s; }
+.acb:checked { border-color:var(--accent); background:var(--accent); }
+.acb.gd:checked { border-color:var(--gold); background:var(--gold); }
+.acb::after { content:'✓'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:8px; color:#fff; font-weight:900; opacity:0; transition:opacity .1s; }
+.acb:checked::after { opacity:1; }
+.ae { font-size:13px; width:17px; text-align:center; }
+.an { flex:1; font-size:12px; font-weight:600; color:var(--muted); transition:color .1s; }
+.ar:has(.acb:checked) .an { color:var(--text); }
+.bb { font-size:8px; letter-spacing:1px; padding:1px 5px; border-radius:3px; background:#e8eef4; color:var(--muted); border:1px solid #c8d8e8; }
+
+/* SELECT ALL ROW */
+.sa { display:flex; align-items:center; gap:9px; padding:9px 0 13px; }
+.sa-cb { width:15px; height:15px; border-radius:3px; border:1.5px solid #b0c4d8; appearance:none; cursor:pointer; flex-shrink:0; }
+.sa-cb:checked { background:var(--accent); border-color:var(--accent); }
+.sa-lbl { font-size:9px; font-weight:700; letter-spacing:3px; color:var(--muted); flex:1; cursor:pointer; }
+.sa-cnt { font-size:9px; color:var(--muted); }
+
+/* FORMS */
+.ftb { display:flex; align-items:center; gap:9px; padding:9px 13px; background:var(--s1); border-bottom:1px solid var(--rule); }
+.fs { flex:1; background:var(--s0); border:1.5px solid var(--rule); border-radius:5px; color:var(--text); font-family:'Rajdhani',sans-serif; font-size:12px; padding:5px 9px; outline:none; }
+.fs:focus { border-color:var(--accent); }
+.fstat { font-size:10px; color:var(--muted); white-space:nowrap; }
+.ftog { padding:5px 11px; border-radius:5px; border:1.5px solid var(--rule); background:transparent; color:var(--dim); font-family:'Rajdhani',sans-serif; font-size:9px; font-weight:700; letter-spacing:2px; cursor:pointer; white-space:nowrap; transition:all .12s; }
+.ftog:hover { border-color:var(--accent); color:var(--accent); }
+.fl { max-height:500px; overflow-y:auto; background:var(--s0); }
+.fr { border-bottom:1px solid #eef2f6; transition:background .08s; }
+.fr:last-child { border-bottom:none; }
+.fr:hover { background:#f5f8fc; }
+.fr.on { background:#edf7f1; }
+.fr-top { display:flex; align-items:center; gap:9px; padding:9px 13px; cursor:pointer; }
+.fcb { width:16px; height:16px; border-radius:3px; border:1.5px solid #b0c4d8; appearance:none; cursor:pointer; flex-shrink:0; position:relative; transition:all .1s; }
+.fcb:checked { background:var(--green); border-color:var(--green); }
+.fcb::after { content:'✓'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:9px; color:#fff; font-weight:900; opacity:0; }
+.fcb:checked::after { opacity:1; }
+.ftag { font-size:8px; font-weight:700; letter-spacing:1px; padding:2px 6px; border-radius:3px; background:#e8eef4; color:#6a8aaa; flex-shrink:0; min-width:30px; text-align:center; }
+.fr.on .ftag { background:#d4ede0; color:var(--green); }
+.fn { flex:1; font-size:14px; font-weight:600; color:#1a2530; }
+.fr.on .fn { color:#0a1a0a; font-weight:700; }
+.fr-detail { display:none; padding:0 13px 10px 38px; gap:8px; align-items:center; flex-wrap:wrap; }
+.fr.on .fr-detail { display:flex; }
+.ss { background:#fff; border:1.5px solid var(--rule); border-radius:5px; color:#1a2a3a; font-family:'Rajdhani',sans-serif; font-size:12px; padding:5px 8px; outline:none; cursor:pointer; flex-shrink:0; }
+.limit-sel { background:#fff; border:1.5px solid var(--rule); border-radius:5px; color:#1a2a3a; font-family:'Rajdhani',sans-serif; font-size:11px; padding:5px 8px; outline:none; cursor:pointer; flex-shrink:0; }
+
+/* SCHEDULE TIME BLOCK */
+.sched-block { display:flex; flex-direction:column; gap:7px; margin-top:4px; }
+.sched-row { display:flex; align-items:center; gap:8px; }
+.time-inp {
+  flex:1; min-width:0;
+  background:#fff; border:1.5px solid var(--rule); border-radius:5px;
+  color:#1a2a3a; font-family:'Rajdhani',sans-serif;
+  font-size:15px; font-weight:700;
+  padding:8px 8px; outline:none;
+  transition:border-color .15s;
+  -webkit-appearance:none;
+}
+.time-inp:focus { border-color:var(--accent); }
+.time-sep { font-size:14px; font-weight:700; color:var(--muted); flex-shrink:0; }
+
+/* ON/OFF TOGGLE */
+.tog-wrap { display:flex; align-items:center; gap:7px; }
+.tog-lbl { font-size:10px; font-weight:700; letter-spacing:1.5px; color:var(--muted); }
+.tog-switch { position:relative; width:44px; height:24px; flex-shrink:0; }
+.tog-switch input { opacity:0; width:0; height:0; position:absolute; }
+.tog-slider {
+  position:absolute; inset:0;
+  background:#c8d4de; border-radius:24px;
+  cursor:pointer; transition:background .2s;
+}
+.tog-slider:before {
+  content:''; position:absolute;
+  width:18px; height:18px; border-radius:50%;
+  background:#fff; left:3px; top:3px;
+  transition:transform .2s;
+  box-shadow:0 1px 3px rgba(0,0,0,.2);
+}
+.tog-switch input:checked + .tog-slider { background:var(--green); }
+.tog-switch input:checked + .tog-slider:before { transform:translateX(20px); }
+.tog-on-lbl { font-size:11px; font-weight:700; color:var(--muted); transition:color .15s; }
+.tog-switch input:checked ~ .tog-on-lbl { color:var(--green); }
+
+/* EMAIL FIELD */
+.ei { flex:1; min-width:150px; background:#fff; border:1.5px solid var(--rule); border-radius:5px; color:#1a2a3a; font-family:'Rajdhani',sans-serif; font-size:12px; padding:5px 9px; outline:none; transition:border-color .15s; }
+.ei:focus { border-color:var(--accent); }
+.ei:disabled { background:#f4f4f4; color:#aaa; text-decoration:line-through; }
+.no-email-wrap { display:flex; align-items:center; gap:5px; white-space:nowrap; }
+.ne-cb { width:13px; height:13px; border-radius:2px; border:1.5px solid #b0c4d8; appearance:none; cursor:pointer; flex-shrink:0; position:relative; transition:all .1s; }
+.ne-cb:checked { background:#e05a20; border-color:#e05a20; }
+.ne-cb::after { content:'✕'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:7px; color:#fff; font-weight:900; opacity:0; }
+.ne-cb:checked::after { opacity:1; }
+.ne-lbl { font-size:9px; font-weight:700; letter-spacing:1px; color:var(--muted); cursor:pointer; }
+
+/* RATE CARDS */
+.rate-cards { display:grid; grid-template-columns:1fr 1fr; }
+.rate-card { padding:16px; border-right:1px solid var(--rule); background:var(--s0); }
+.rate-card:last-child { border-right:none; }
+.rate-card-title { font-size:13px; font-weight:700; color:var(--dim); margin-bottom:14px; display:flex; align-items:center; gap:6px; }
+.rate-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.rate-field { display:flex; flex-direction:column; gap:5px; }
+.rate-input-wrap { display:flex; align-items:stretch; background:#fff; border:2px solid var(--rule); border-radius:7px; overflow:hidden; transition:border-color .15s; }
+.rate-input-wrap:focus-within { border-color:var(--accent); box-shadow:0 0 0 3px rgba(20,121,200,0.12); }
+.rate-prefix { padding:0 8px 0 10px; font-size:15px; font-weight:700; color:var(--muted); background:#f4f7fb; border-right:1px solid var(--rule); display:flex; align-items:center; }
+.rate-suffix { padding:0 10px 0 6px; font-size:11px; font-weight:700; color:var(--muted); background:#f4f7fb; border-left:1px solid var(--rule); display:flex; align-items:center; white-space:nowrap; }
+.rate-inp { flex:1; min-width:0; border:none; outline:none; background:#fff; color:#1a2a3a; font-family:'Rajdhani',sans-serif; font-size:20px; font-weight:700; padding:11px 8px; width:100%; -webkit-appearance:none; appearance:none; }
+.rate-inp::placeholder { color:#c0ccd8; font-weight:400; font-size:16px; }
+.locked-val { display:flex; align-items:center; gap:6px; padding:10px 12px; background:#f0f4f8; border:2px solid var(--rule); border-radius:7px; min-height:50px; }
+.locked-num { font-size:22px; font-weight:700; color:var(--dim); line-height:1; }
+.locked-unit { font-size:10px; color:var(--muted); white-space:nowrap; line-height:1.3; }
+
+/* FEATURE ROWS */
+.feat-row { display:flex; align-items:center; gap:14px; padding:14px 16px; border-bottom:1px solid var(--rule); }
+.feat-left { display:flex; align-items:flex-start; gap:12px; flex:1; }
+.feat-icon { font-size:22px; flex-shrink:0; margin-top:2px; }
+.feat-info { display:flex; flex-direction:column; gap:3px; }
+.feat-name { font-size:14px; font-weight:700; color:var(--text); letter-spacing:0.3px; }
+.feat-desc { font-size:11px; color:var(--muted); line-height:1.4; }
+
+/* NOTES */
+.ta { width:100%; background:var(--s1); border:1.5px solid var(--rule); border-radius:6px; color:var(--text); font-family:'Rajdhani',sans-serif; font-size:13px; padding:10px 12px; outline:none; resize:vertical; min-height:180px; transition:border-color .15s; }
+.ta:focus { border-color:var(--accent); }
+
+/* FOOTER */
+.foot { background:var(--navy); border-top:1px solid #0a1a2c; padding:11px 28px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.foot-txt { font-size:9px; letter-spacing:2px; color:#4a7a9a; }
+.btn-p { padding:9px 22px; border-radius:6px; border:none; cursor:pointer; font-family:'Rajdhani',sans-serif; font-size:10px; font-weight:700; letter-spacing:3px; background:linear-gradient(135deg,#1460a8,#2a9ae8); color:#fff; transition:all .15s; }
+.btn-p:hover { filter:brightness(1.08); transform:translateY(-1px); }
+
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-track { background:var(--s1); }
+::-webkit-scrollbar-thumb { background:var(--rule); border-radius:3px; }
+
+@media (max-width:620px) {
+  .rate-cards { grid-template-columns:1fr !important; }
+  .rate-card { border-right:none; border-bottom:1px solid var(--rule); }
+  .rate-card:last-child { border-bottom:none; }
+  .app-cols { grid-template-columns:1fr; }
+  .cg { grid-template-columns:1fr 1fr !important; }
+  .fac-bar { gap:10px; }
+  .tabs { padding:0 8px; overflow-x:auto; white-space:nowrap; }
+  .tab { padding:10px 10px; font-size:9px; flex-shrink:0; }
+  .body { padding:14px 12px; gap:12px; }
+  .rate-row { grid-template-columns:1fr 1fr; }
+}
+</style>
+  <style>
+  @media print {
+    /* ── BASE ── */
+    * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+    body { background:#fff; font-family:'Rajdhani',sans-serif; font-size:11pt; color:#111; }
+    .page { box-shadow:none; border:none; margin:0; max-width:100%; background:#fff; }
+    .btn-p { display:none !important; }
+    .tabs  { display:none !important; }
+    .panel { display:block !important; }
+    .fl    { max-height:none !important; overflow:visible !important; }
+
+    /* ── HEADER ── */
+    .hdr {
+      background:#0d2137 !important;
+      padding:14px 24px !important;
+      border-radius:0 !important;
+      page-break-inside:avoid;
+    }
+    .brand     { font-size:18pt !important; letter-spacing:4px; }
+    .sub-brand { font-size:8pt !important; }
+    .hdr-field input { color:#d0e8ff !important; font-size:10pt !important; }
+
+    /* ── FACILITY BAR ── */
+    .fac-bar {
+      background:#f4f7fb !important;
+      border-bottom:2px solid #0d2137 !important;
+      padding:10px 24px !important;
+    }
+    .fac-lbl { font-size:7pt !important; letter-spacing:2px; color:#666 !important; }
+    .fac-inp {
+      border:none !important; border-bottom:1.5px solid #aaa !important;
+      border-radius:0 !important; background:transparent !important;
+      font-size:12pt !important; font-weight:700; padding:4px 0 !important;
+    }
+
+    /* ── SECTION WRAPPER ── */
+    .body { padding:16px 24px !important; gap:14px !important; }
+    .sec  { border:1px solid #ccc !important; border-radius:4px !important; page-break-inside:avoid; margin-bottom:12px; }
+
+    /* ── SECTION HEADER ── */
+    .sec-hdr {
+      background:#0d2137 !important;
+      padding:7px 14px !important;
+    }
+    .sec-title { font-size:9pt !important; letter-spacing:2px; color:#a0c8e8 !important; }
+    .sec-sub   { font-size:7pt !important; color:#5a8aaa !important; }
+
+    /* ── PANEL DIVIDERS ── */
+    .panel { border:none !important; }
+    .panel + .panel { border-top:2px solid #0d2137 !important; margin-top:16px !important; padding-top:4px !important; }
+
+    /* ── APP COLUMNS ── */
+    .app-cols { grid-template-columns:1fr 1fr !important; gap:10px !important; }
+    .ac    { border:1px solid #ccc !important; border-radius:4px !important; }
+    .ach   { background:#f4f7fb !important; padding:7px 12px !important; border-bottom:1px solid #ccc !important; }
+    .act   { font-size:8pt !important; letter-spacing:2px; color:#333 !important; }
+    .ar    { padding:6px 12px !important; border-bottom:1px solid #eee !important; background:#fff !important; }
+    .ar:last-child { border-bottom:none !important; }
+    .ae    { font-size:12pt !important; }
+    .an    { font-size:10pt !important; font-weight:600; color:#333 !important; }
+    .ar:has(.acb:checked) .an { color:#111 !important; }
+    .bb    { font-size:7pt !important; padding:1px 5px; background:#e8eef4 !important; color:#666 !important; }
+
+    /* Checkboxes → clean print boxes */
+    .acb, .fcb, .sa-cb {
+      appearance:none !important; -webkit-appearance:none !important;
+      width:11px !important; height:11px !important;
+      border:1.5px solid #888 !important;
+      border-radius:2px !important;
+      background:#fff !important;
+      display:inline-block !important;
+      position:relative !important;
+      flex-shrink:0 !important;
+    }
+    .acb:checked, .fcb:checked, .sa-cb:checked {
+      background:#0d2137 !important;
+      border-color:#0d2137 !important;
+    }
+    .acb:checked::after, .fcb:checked::after, .sa-cb:checked::after {
+      content:'✓' !important; color:#fff !important;
+      font-size:8px !important; font-weight:900;
+      position:absolute; top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      opacity:1 !important;
+    }
+    .acb.gd:checked { background:#a86000 !important; border-color:#a86000 !important; }
+
+    /* Select all row */
+    .sa { padding:7px 0 10px !important; }
+    .sa-lbl { font-size:8pt !important; letter-spacing:2px; color:#555 !important; }
+    .sa-cnt { font-size:8pt !important; color:#888 !important; }
+
+    /* ── RATE CARDS ── */
+    .rate-cards { grid-template-columns:repeat(2,1fr) !important; border:none !important; }
+    .rate-card  {
+      padding:10px 12px !important; border-right:1px solid #ddd !important;
+      border-bottom:1px solid #ddd !important; background:#fff !important;
+    }
+    .rate-card:last-child { border-right:none !important; }
+    .rate-card-title { font-size:9pt !important; font-weight:700; color:#333 !important; margin-bottom:8px !important; }
+    .rate-field .fac-lbl { font-size:7pt !important; color:#888 !important; margin-bottom:3px !important; }
+    .rate-input-wrap {
+      border:1px solid #ccc !important; border-radius:3px !important;
+      background:#f8f8f8 !important; overflow:visible !important;
+    }
+    .rate-prefix { background:#eee !important; border-right:1px solid #ccc !important; font-size:12pt !important; padding:0 6px !important; }
+    .rate-suffix { background:#eee !important; border-left:1px solid #ccc !important; font-size:9pt !important; padding:0 7px !important; }
+    .rate-inp    { font-size:14pt !important; font-weight:700; color:#111 !important; padding:6px 6px !important; background:#f8f8f8 !important; }
+    .locked-val  { background:#eef2f6 !important; border:1px solid #ccc !important; border-radius:3px !important; padding:6px 10px !important; min-height:auto !important; }
+    .locked-num  { font-size:14pt !important; color:#333 !important; }
+    .locked-unit { font-size:8pt !important; color:#888 !important; }
+
+    /* Time / toggle */
+    .sched-block { gap:5px !important; }
+    .time-inp { font-size:10pt !important; font-weight:700; padding:5px 6px !important; border:1px solid #ccc !important; background:#f8f8f8 !important; color:#111 !important; }
+    .time-sep  { font-size:11pt !important; }
+    .tog-slider { background:#ccc !important; }
+    .tog-switch input:checked + .tog-slider { background:#1a8c44 !important; }
+    .tog-on-lbl { font-size:9pt !important; font-weight:700; }
+
+    /* ── REQUEST FORMS ── */
+    .ftb { background:#f4f7fb !important; padding:7px 12px !important; border-bottom:1px solid #ccc !important; }
+    .ftb .fs, .ftb .ftog-btn, #filter-stat { display:none !important; }
+    .fr { border-bottom:1px solid #eee !important; break-inside:avoid; }
+    .fr.on { background:#f0faf4 !important; }
+    .fr-top { padding:6px 12px !important; }
+    .ftag { font-size:7pt !important; padding:1px 5px !important; }
+    .fn   { font-size:10pt !important; color:#111 !important; }
+    .fr-detail { padding:2px 12px 7px 34px !important; gap:6px !important; flex-wrap:wrap; }
+    .ei   { font-size:9pt !important; border:1px solid #ccc !important; padding:3px 7px !important; border-radius:3px !important; background:#f8f8f8 !important; }
+    .ne-lbl  { font-size:8pt !important; }
+    .limit-sel { font-size:8pt !important; border:1px solid #ccc !important; background:#f8f8f8 !important; padding:3px 6px !important; border-radius:3px !important; color:#333 !important; }
+
+    /* Show disabled fields in print */
+    .ei:disabled, .limit-sel:disabled { opacity:1 !important; }
+
+    /* Pinned badge */
+    .fr-top span[style*="fff3cd"] { background:#fff8e0 !important; }
+
+    /* ── NOTES ── */
+    .ta { border:1px solid #ccc !important; background:#fff !important; color:#111 !important; min-height:60px !important; font-size:10pt !important; padding:8px !important; }
+
+    /* ── FOOTER ── */
+    .foot { background:#0d2137 !important; padding:8px 24px !important; }
+    .foot-txt { color:#7aaad4 !important; font-size:8pt !important; }
+    .foot .btn-p { display:none !important; }
+
+    /* Page breaks between major sections */
+    #p-forms { page-break-before:always; }
+    #p-notes  { page-break-before:avoid; }
+  }
+  </style>
+
+  <!-- PDF-mode styles: applied via JS class before html2pdf captures, mirrors print styles -->
+  <style>
+  body.pdf-mode .tabs    { display:none !important; }
+  body.pdf-mode .panel   { display:block !important; }
+  body.pdf-mode .btn-p   { display:none !important; }
+  body.pdf-mode .fl      { max-height:none !important; overflow:visible !important; }
+  body.pdf-mode .page    { box-shadow:none !important; border:none !important; }
+  body.pdf-mode .hdr     { background:#0d2137 !important; border-radius:0 !important; }
+  body.pdf-mode .fac-bar { background:#f4f7fb !important; border-bottom:2px solid #0d2137 !important; }
+  body.pdf-mode .fac-inp { border:none !important; border-bottom:1.5px solid #aaa !important; border-radius:0 !important; background:transparent !important; }
+  body.pdf-mode .sec-hdr { background:#0d2137 !important; }
+  body.pdf-mode .sec-title { color:#a0c8e8 !important; }
+  body.pdf-mode .sec-sub   { color:#5a8aaa !important; }
+  body.pdf-mode .ach     { background:#f4f7fb !important; }
+  body.pdf-mode .ar      { background:#fff !important; }
+  body.pdf-mode .fr.on   { background:#f0faf4 !important; }
+  body.pdf-mode .ftb     { background:#f4f7fb !important; }
+  body.pdf-mode .ftb .fs,
+  body.pdf-mode .ftb .ftog-btn,
+  body.pdf-mode #filter-stat { display:none !important; }
+  body.pdf-mode .rate-cards { grid-template-columns:repeat(2,1fr) !important; }
+  body.pdf-mode .locked-val { background:#eef2f6 !important; }
+  body.pdf-mode .rate-card  { background:#fff !important; }
+  body.pdf-mode .foot       { background:#0d2137 !important; }
+  body.pdf-mode .panel + .panel { border-top:2px solid #0d2137 !important; margin-top:16px !important; }
+  body.pdf-mode .ei:disabled,
+  body.pdf-mode .limit-sel:disabled { opacity:1 !important; }
+  </style>
+
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-left">
+      <div class="logo">C</div>
+      <div>
+        <div class="brand">CIRCUITS</div>
+        <div class="sub-brand">Facility Configuration Form</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div class="hdr-field">DATE: <input type="date" id="today"></div>
+      <div class="hdr-field">COMPLETED BY: <input type="text" placeholder="Name"></div>
+    </div>
+  </div>
+
+  <!-- FACILITY BAR -->
+  <div class="fac-bar">
+    <div class="fac-f g2">
+      <div class="fac-lbl">Facility Name</div>
+      <input type="text" class="fac-inp" placeholder="e.g. Muskogee County Jail">
+    </div>
+    <div class="fac-f g1">
+      <div class="fac-lbl">County</div>
+      <input type="text" class="fac-inp" placeholder="e.g. Muskogee">
+    </div>
+    <div class="fac-f">
+      <div class="fac-lbl">State</div>
+      <select class="fac-inp" style="width:80px;">
+        <option>—</option>
+        <option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option><option>CO</option><option>CT</option><option>DE</option><option>FL</option><option>GA</option><option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option><option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option><option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option><option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option><option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option><option selected>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VT</option><option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option>
+      </select>
+    </div>
+    <div class="fac-f">
+      <div class="fac-lbl"># Beds</div>
+      <input type="number" class="fac-inp" placeholder="0" style="width:90px;" min="0">
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab on" onclick="switchTab('apps',this)">
+      APPS <span class="tbadge" id="b-apps">0 apps</span>
+    </button>
+    <button class="tab" onclick="switchTab('rates',this)">
+      RATES
+    </button>
+    <button class="tab" onclick="switchTab('forms',this)">
+      REQUEST FORMS <span class="tbadge" id="b-forms">0 / 60</span>
+    </button>
+    <button class="tab" onclick="switchTab('notes',this)">
+      NOTES
+    </button>
+  </div>
+
+  <!-- ══ PANEL: APPS ══ -->
+  <div class="panel on" id="p-apps">
+    <div class="body">
+
+      <div class="sec">
+        <div class="sec-hdr">
+          <span class="sec-title">APP CONFIGURATION</span>
+          <span class="sec-sub">ProdigyVision appears on both logins</span>
+        </div>
+        <div class="sec-body">
+          <div class="sa">
+            <input type="checkbox" class="sa-cb" id="sa-all">
+            <label for="sa-all" class="sa-lbl">SELECT ALL APPS</label>
+            <span class="sa-cnt" id="app-cnt">0 / 11 active</span>
+          </div>
+          <div class="app-cols">
+            <div class="ac" style="border-top:3px solid #a86000;">
+              <div class="ach"><span class="act">PAID LOGIN</span><span class="ab ab-g">Premium</span></div>
+              <div class="ar"><input type="checkbox" class="acb gd"><span class="ae">🎬</span><span class="an">Movies</span></div>
+              <div class="ar"><input type="checkbox" class="acb gd"><span class="ae">🎵</span><span class="an">Music</span></div>
+              <div class="ar"><input type="checkbox" class="acb gd"><span class="ae">🎧</span><span class="an">Audiobooks</span></div>
+              <div class="ar"><input type="checkbox" class="acb gd"><span class="ae">📖</span><span class="an">Ebooks</span></div>
+              <div class="ar"><input type="checkbox" class="acb gd"><span class="ae">🎮</span><span class="an">Games</span></div>
+              <div class="ar"><input type="checkbox" class="acb gd"><span class="ae">📺</span><span class="an">ProdigyVision</span><span class="bb">BOTH</span></div>
+            </div>
+            <div class="ac" style="border-top:3px solid #1479c8;">
+              <div class="ach"><span class="act">FREE LOGIN</span><span class="ab ab-b">Standard</span></div>
+              <div class="ar"><input type="checkbox" class="acb"><span class="ae">🌐</span><span class="an">Kolibri</span></div>
+              <div class="ar"><input type="checkbox" class="acb"><span class="ae">📺</span><span class="an">ProdigyVision</span><span class="bb">BOTH</span></div>
+              <div class="ar"><input type="checkbox" class="acb"><span class="ae">🛒</span><span class="an">Commissary</span></div>
+              <div class="ar"><input type="checkbox" class="acb"><span class="ae">📞</span><span class="an">Phone App</span></div>
+              <div class="ar"><input type="checkbox" class="acb"><span class="ae">⚖️</span><span class="an">Law Library</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-hdr">
+          <span class="sec-title">SECURITY FEATURES</span>
+          <span class="sec-sub">Facial recognition &amp; privacy controls for tablets and kiosks</span>
+        </div>
+        <div class="sec-body" style="padding:0;">
+          <div class="feat-row">
+            <div class="feat-left">
+              <span class="feat-icon">🪪</span>
+              <div class="feat-info">
+                <div class="feat-name">FaceX</div>
+              </div>
+            </div>
+            <label class="tog-switch">
+              <input type="checkbox" id="facex-tog" onchange="document.getElementById('facex-status').textContent=this.checked?'ON':'OFF';document.getElementById('facex-status').style.color=this.checked?'var(--green)':'var(--muted)';">
+              <span class="tog-slider"></span>
+            </label>
+            <span id="facex-status" style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);min-width:24px;">OFF</span>
+          </div>
+          <div class="feat-row" style="border-bottom:none;">
+            <div class="feat-left">
+              <span class="feat-icon">🫥</span>
+              <div class="feat-info">
+                <div class="feat-name">FaceX Blur</div>
+              </div>
+            </div>
+            <label class="tog-switch">
+              <input type="checkbox" id="facexblur-tog" onchange="document.getElementById('facexblur-status').textContent=this.checked?'ON':'OFF';document.getElementById('facexblur-status').style.color=this.checked?'var(--green)':'var(--muted)';">
+              <span class="tog-slider"></span>
+            </label>
+            <span id="facexblur-status" style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);min-width:24px;">OFF</span>
+          </div>
+          <div class="feat-row" style="border-bottom:none;">
+            <div class="feat-left">
+              <span class="feat-icon">🔐</span>
+              <div class="feat-info">
+                <div class="feat-name">Secure PIN</div>
+              </div>
+            </div>
+            <label class="tog-switch">
+              <input type="checkbox" id="securepin-tog" onchange="document.getElementById('securepin-status').textContent=this.checked?'ON':'OFF';document.getElementById('securepin-status').style.color=this.checked?'var(--green)':'var(--muted)';">
+              <span class="tog-slider"></span>
+            </label>
+            <span id="securepin-status" style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);min-width:24px;">OFF</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /p-apps -->
+
+  <!-- ══ PANEL: RATES ══ -->
+  <div class="panel" id="p-rates">
+    <div class="body">
+
+      <!-- FCC REGULATED - LOCKED -->
+      <div class="sec">
+        <div class="sec-hdr">
+          <span class="sec-title">PHONE &amp; VIDEO</span>
+          <span class="sec-sub">Inmate rate varies per facility · Facility gets fixed $0.02/min (FCC)</span>
+        </div>
+        <div class="rate-cards">
+
+          <div class="rate-card">
+            <div class="rate-card-title"><span class="ci">📞</span> Inmate Phone</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div class="rate-row">
+                <div class="rate-field">
+                  <div class="fac-lbl">INMATE RATE</div>
+                  <div class="rate-input-wrap">
+                    <span class="rate-prefix">$</span>
+                    <input type="number" class="rate-inp" min="0" step="0.001" placeholder="0.000">
+                    <span class="rate-suffix">/min</span>
+                  </div>
+                </div>
+                <div class="rate-field locked-field">
+                  <div class="fac-lbl">FACILITY GETS</div>
+                  <div class="locked-val">
+                    <span class="locked-num">$0.02</span>
+                    <span class="locked-unit">/min &nbsp;🔒 FCC</span>
+                  </div>
+                </div>
+              </div>
+              <div class="rate-field">
+                <div class="fac-lbl">SCHEDULE</div>
+                <div class="sched-block">
+                  <div class="sched-row">
+                    <input type="time" class="time-inp" value="08:00">
+                    <span class="time-sep">—</span>
+                    <input type="time" class="time-inp" value="22:00">
+                  </div>
+                  <div class="tog-wrap">
+                    <label class="tog-switch">
+                      <input type="checkbox" checked>
+                      <span class="tog-slider"></span>
+                    </label>
+                    <span class="tog-on-lbl" id="phone-sched-lbl">ON</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rate-card">
+            <div class="rate-card-title"><span class="ci">📹</span> Video Visitation</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div class="rate-row">
+                <div class="rate-field">
+                  <div class="fac-lbl">INMATE RATE</div>
+                  <div class="rate-input-wrap">
+                    <span class="rate-prefix">$</span>
+                    <input type="number" class="rate-inp" min="0" step="0.001" placeholder="0.000">
+                    <span class="rate-suffix">/min</span>
+                  </div>
+                </div>
+                <div class="rate-field locked-field">
+                  <div class="fac-lbl">FACILITY GETS</div>
+                  <div class="locked-val">
+                    <span class="locked-num">$0.02</span>
+                    <span class="locked-unit">/min &nbsp;🔒 FCC</span>
+                  </div>
+                </div>
+              </div>
+              <div class="rate-field">
+                <div class="fac-lbl">SCHEDULE</div>
+                <div class="sched-block">
+                  <div class="sched-row">
+                    <input type="time" class="time-inp" value="08:00">
+                    <span class="time-sep">—</span>
+                    <input type="time" class="time-inp" value="22:00">
+                  </div>
+                  <div class="tog-wrap">
+                    <label class="tog-switch">
+                      <input type="checkbox" checked>
+                      <span class="tog-slider"></span>
+                    </label>
+                    <span class="tog-on-lbl">ON</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- MESSAGING -->
+      <div class="sec">
+        <div class="sec-hdr">
+          <span class="sec-title">MESSAGING — RATES &amp; COMMISSION</span>
+          <span class="sec-sub">SMS and Photos have separate rates · commission % applies to both</span>
+        </div>
+        <div class="rate-cards" style="grid-template-columns:1fr 1fr 1fr 1fr;">
+
+          <div class="rate-card">
+            <div class="rate-card-title"><span class="ci">💬</span> SMS</div>
+            <div class="rate-field">
+              <div class="fac-lbl">RATE PER MESSAGE</div>
+              <div class="rate-input-wrap">
+                <span class="rate-prefix">$</span>
+                <input type="number" class="rate-inp" min="0" step="0.001" placeholder="0.000">
+                <span class="rate-suffix">/msg</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="rate-card">
+            <div class="rate-card-title"><span class="ci">📷</span> Photos</div>
+            <div class="rate-field">
+              <div class="fac-lbl">RATE PER MESSAGE</div>
+              <div class="rate-input-wrap">
+                <span class="rate-prefix">$</span>
+                <input type="number" class="rate-inp" min="0" step="0.001" placeholder="0.000">
+                <span class="rate-suffix">/msg</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="rate-card" style="background:#f8fbff;border-left:3px solid #1479c8;">
+            <div class="rate-card-title" style="color:#1479c8;">📊 SMS &amp; Photos Commission</div>
+            <div class="rate-field">
+              <div class="fac-lbl">SHARED COMMISSION %</div>
+              <div class="rate-input-wrap">
+                <input type="number" class="rate-inp" min="0" max="100" step="0.1" placeholder="0">
+                <span class="rate-suffix">%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="rate-card">
+            <div class="rate-card-title"><span class="ci">✉️</span> E-Messaging</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div class="rate-field">
+                <div class="fac-lbl">RATE PER MESSAGE</div>
+                <div class="rate-input-wrap">
+                  <span class="rate-prefix">$</span>
+                  <input type="number" class="rate-inp" min="0" step="0.001" placeholder="0.000">
+                  <span class="rate-suffix">/msg</span>
+                </div>
+              </div>
+              <div class="rate-field">
+                <div class="fac-lbl">FACILITY COMMISSION</div>
+                <div class="rate-input-wrap">
+                  <input type="number" class="rate-inp" min="0" max="100" step="0.1" placeholder="0">
+                  <span class="rate-suffix">%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- TABLETS -->
+      <div class="sec">
+        <div class="sec-hdr">
+          <span class="sec-title">TABLETS — RATE &amp; COMMISSION</span>
+          <span class="sec-sub">Block rate (e.g. $4.99 / 4 hrs) and/or per-minute rate (e.g. $0.10/min)</span>
+        </div>
+        <div class="rate-cards" style="grid-template-columns:1fr 1fr 1fr 1fr;">
+
+          <div class="rate-card">
+            <div class="rate-card-title"><span class="ci">💰</span> Block Rate</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div class="rate-field">
+                <div class="fac-lbl">PRICE</div>
+                <div class="rate-input-wrap">
+                  <span class="rate-prefix">$</span>
+                  <input type="number" class="rate-inp" min="0" step="0.01" placeholder="4.99">
+                </div>
+              </div>
+              <div class="rate-field">
+                <div class="fac-lbl">FOR (HOURS)</div>
+                <div class="rate-input-wrap">
+                  <input type="number" class="rate-inp" min="0" step="0.5" placeholder="4">
+                  <span class="rate-suffix">hrs</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rate-card">
+            <div class="rate-card-title"><span class="ci">⏱️</span> Per-Minute Rate</div>
+            <div class="rate-field">
+              <div class="fac-lbl">RATE</div>
+              <div class="rate-input-wrap">
+                <span class="rate-prefix">$</span>
+                <input type="number" class="rate-inp" min="0" step="0.001" placeholder="0.10">
+                <span class="rate-suffix">/min</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="rate-card">
+            <div class="rate-card-title"><span class="ci">📱</span> Facility Commission</div>
+            <div class="rate-field">
+              <div class="fac-lbl">COMMISSION %</div>
+              <div class="rate-input-wrap">
+                <input type="number" class="rate-inp" min="0" max="100" step="0.1" placeholder="0">
+                <span class="rate-suffix">%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="rate-card">
+            <div class="rate-card-title"><span class="ci">🔢</span> Tablet Count &amp; Schedule</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div class="rate-field">
+                <div class="fac-lbl">TOTAL UNITS</div>
+                <div class="rate-input-wrap">
+                  <input type="number" class="rate-inp" min="0" step="1" placeholder="0">
+                  <span class="rate-suffix">units</span>
+                </div>
+              </div>
+              <div class="rate-field">
+                <div class="fac-lbl">SCHEDULE</div>
+                <div class="sched-block">
+                  <div class="sched-row">
+                    <input type="time" class="time-inp" value="08:00">
+                    <span class="time-sep">—</span>
+                    <input type="time" class="time-inp" value="22:00">
+                  </div>
+                  <div class="tog-wrap">
+                    <label class="tog-switch">
+                      <input type="checkbox" checked>
+                      <span class="tog-slider"></span>
+                    </label>
+                    <span class="tog-on-lbl">ON</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /p-rates -->
+
+  <!-- ══ PANEL: REQUEST FORMS ══ -->
+  <div class="panel" id="p-forms">
+    <div class="body">
+      <div class="sec">
+        <div class="sec-hdr">
+          <span class="sec-title">REQUEST FORMS</span>
+          <span class="sec-sub" id="f-count">0 / 60 enabled</span>
+        </div>
+        <div class="ftb">
+          <input type="text" class="fs" id="f-search" placeholder="Filter forms…" oninput="filterF()">
+          <span class="fstat" id="f-stat"></span>
+          <button class="ftog" id="ftog-btn" onclick="toggleAllF()">ENABLE ALL</button>
+        </div>
+        <div class="fl" id="f-list"></div>
+      </div>
+    </div>
+  </div><!-- /p-forms -->
+
+  <!-- ══ PANEL: NOTES ══ -->
+  <div class="panel" id="p-notes">
+    <div class="body">
+      <div class="sec">
+        <div class="sec-hdr"><span class="sec-title">NOTES</span></div>
+        <div class="sec-body">
+          <textarea class="ta" placeholder="Configuration notes, special instructions, follow-up items…"></textarea>
+        </div>
+      </div>
+    </div>
+  </div><!-- /p-notes -->
+
+  <!-- FOOTER -->
+  <div class="foot">
+    <span class="foot-txt">PRODIGY SOLUTIONS INC. · CIRCUITS PLATFORM · FACILITY CONFIGURATION</span>
+    <button class="btn-p" onclick="printAll()">⬇ SAVE AS PDF</button>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+// ── AUTO DATE ──
+document.getElementById('today').valueAsDate = new Date();
+
+// ── TAB SWITCHING ──
+function switchTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.getElementById('p-' + id).classList.add('on');
+  btn.classList.add('on');
+}
+
+// ── REQUEST FORMS DATA ──
+const FORMS = [
+  // ── PINNED: most common ──
+  "View Inmate Requests - Request of Staff",
+  "View Inmate Requests - Grievance",
+  "View Inmate Requests - Medical",
+  // ── ALPHABETICAL ──
+  "View Inmate Requests - Admin",
+  "View Inmate Requests - BIA",
+  "View Inmate Requests - Captain",
+  "View Inmate Requests - Cell Move",
+  "View Inmate Requests - Chaplain",
+  "View Inmate Requests - Classification",
+  "View Inmate Requests - Commissary",
+  "View Inmate Requests - Commissary Account",
+  "View Inmate Requests - Counselor",
+  "View Inmate Requests - County District Court",
+  "View Inmate Requests - Court Guard",
+  "View Inmate Requests - Court/Charge Information",
+  "View Inmate Requests - COVID Related",
+  "View Inmate Requests - Dietary Issues",
+  "View Inmate Requests - E-Cig",
+  "View Inmate Requests - Federal Detainee",
+  "View Inmate Requests - Food/Meal Issues",
+  "View Inmate Requests - Gen Req of Staff/Grievance",
+  "View Inmate Requests - General Admin",
+  "View Inmate Requests - GLMH",
+  "View Inmate Requests - I.T. Department",
+  "View Inmate Requests - Indigent",
+  "View Inmate Requests - Investigation",
+  "View Inmate Requests - Jail Investigation",
+  "View Inmate Requests - Kitchen",
+  "View Inmate Requests - Labor",
+  "View Inmate Requests - Laundry",
+  "View Inmate Requests - Mail",
+  "View Inmate Requests - Mail or Programs",
+  "View Inmate Requests - Maintenance for Cell/Pod",
+  "View Inmate Requests - Medical (Pottawatomie)",
+  "View Inmate Requests - Medical Grievance",
+  "View Inmate Requests - Notary",
+  "View Inmate Requests - Order Billing Issues",
+  "View Inmate Requests - Phone Card",
+  "View Inmate Requests - Phone/Video/Text Account",
+  "View Inmate Requests - Pre Grievance",
+  "View Inmate Requests - PREA",
+  "View Inmate Requests - Protective Placement",
+  "View Inmate Requests - Public Defender",
+  "View Inmate Requests - Sanction Disciplinary",
+  "View Inmate Requests - Staff - Lieutenant",
+  "View Inmate Requests - Transition Coordinator",
+  "View Inmate Requests - Trustee",
+  "View Inmate Coursework Reward Requests",
+  "View Inmate Grievance Appeal Requests",
+  "View Inmate Library Requests",
+  "View Inmate Mail",
+  "View Inmate Mental Health Crisis Requests",
+  "View Inmate Offender Registration Requests",
+  "View Inmate People's Family Health Requests",
+  "View Inmate Rehab Requests",
+  "View Inmate Tablet Issue Requests",
+  "View Inmate Tablet Requests",
+  "View Inmate Undersheriff Requests",
+  "View Legal Mail",
+  "View Seeking Employment Upon Release Requests",
+];
+
+function sName(n) {
+  if (n.startsWith("View Inmate Requests - ")) return n.replace("View Inmate Requests - ","");
+  if (n.startsWith("View Inmate ")) return n.replace("View Inmate ","");
+  if (n.startsWith("View ")) return n.replace("View ","");
+  return n;
+}
+function sTag(n) {
+  if (n.startsWith("View Inmate Requests - ")) return "REQ";
+  if (n.startsWith("View Inmate ")) return "INM";
+  return "VW";
+}
+
+// Build form rows
+const fl = document.getElementById('f-list');
+const PINNED = new Set([
+  "View Inmate Requests - Request of Staff",
+  "View Inmate Requests - Grievance",
+  "View Inmate Requests - Medical",
+]);
+FORMS.forEach((name, i) => {
+  const row = document.createElement('div');
+  row.className = 'fr';
+  row.dataset.n = name.toLowerCase();
+  const pinBadge = PINNED.has(name)
+    ? `<span style="font-size:8px;font-weight:700;padding:2px 6px;border-radius:3px;background:#fff3cd;color:#856404;border:1px solid #ffc107;flex-shrink:0;">★ TOP</span>`
+    : '';
+  row.innerHTML = `
+    <div class="fr-top" onclick="toggleFR(this)">
+      <input type="checkbox" class="fcb" id="fc${i}" onclick="event.stopPropagation();onFC(this)">
+      <span class="ftag">${sTag(name)}</span>
+      <label class="fn" for="fc${i}" onclick="event.stopPropagation();">${sName(name)}</label>
+      ${pinBadge}
+    </div>
+    <div class="fr-detail">
+      <input type="email" class="ei" placeholder="notification email…" disabled>
+      <div class="no-email-wrap">
+        <input type="checkbox" class="ne-cb" id="ne${i}" onchange="onNE(this)">
+        <label class="ne-lbl" for="ne${i}">NO EMAIL</label>
+      </div>
+      <select class="limit-sel" disabled>
+        <option value="">No limit</option>
+        <option>1 per inmate / day</option>
+        <option>2 per inmate / day</option>
+        <option>3 per inmate / day</option>
+        <option>5 per inmate / day</option>
+        <option>1 per inmate / week</option>
+        <option>2 per inmate / week</option>
+        <option>3 per inmate / week</option>
+        <option>1 per inmate / month</option>
+      </select>
+    </div>`;
+  // Separator line after pinned group
+  if (i === 2) row.style.borderBottom = '2px solid #c8d8e8';
+  fl.appendChild(row);
+});
+
+function toggleFR(topDiv) {
+  const row = topDiv.closest('.fr');
+  const cb  = row.querySelector('.fcb');
+  cb.checked = !cb.checked;
+  onFC(cb);
+}
+
+function onFC(cb) {
+  const row  = cb.closest('.fr');
+  const ei   = row.querySelector('.ei');
+  const neCb = row.querySelector('.ne-cb');
+  const lim  = row.querySelector('.limit-sel');
+  const on   = cb.checked;
+  row.classList.toggle('on', on);
+  lim.disabled = !on;
+  ei.disabled  = !on || neCb.checked;
+  updateFC();
+}
+
+function onNE(neCb) {
+  const row = neCb.closest('.fr');
+  const ei  = row.querySelector('.ei');
+  const fcb = row.querySelector('.fcb');
+  if (!fcb.checked) return;
+  ei.disabled = neCb.checked;
+  if (neCb.checked) ei.value = '';
+}
+
+function updateFC() {
+  const total = document.querySelectorAll('.fcb').length;
+  const on = document.querySelectorAll('.fcb:checked').length;
+  document.getElementById('f-count').textContent = `${on} / ${total} enabled`;
+  document.getElementById('b-forms').textContent = `${on} / ${total}`;
+  document.getElementById('ftog-btn').textContent = on === total ? 'DISABLE ALL' : 'ENABLE ALL';
+}
+
+function toggleAllF() {
+  const all = document.querySelectorAll('.fcb');
+  const any = [...all].some(c => !c.checked);
+  all.forEach(c => { c.checked = any; onFC(c); });
+}
+
+function filterF() {
+  const q = document.getElementById('f-search').value.toLowerCase();
+  let vis = 0;
+  document.querySelectorAll('.fr').forEach(r => {
+    const m = !q || r.dataset.n.includes(q);
+    r.style.display = m ? '' : 'none';
+    if (m) vis++;
+  });
+  document.getElementById('f-stat').textContent = q ? `${vis} match${vis!==1?'es':''}` : '';
+}
+// ── APP CHECKBOXES ──
+const saAll = document.getElementById('sa-all');
+
+function updateAC() {
+  const all = document.querySelectorAll('.acb');
+  const on = document.querySelectorAll('.acb:checked').length;
+  document.getElementById('app-cnt').textContent = `${on} / ${all.length} active`;
+  document.getElementById('b-apps').textContent = `${on} apps`;
+  saAll.checked = on === all.length;
+  saAll.indeterminate = on > 0 && on < all.length;
+}
+
+document.querySelectorAll('.acb').forEach(cb => cb.addEventListener('change', updateAC));
+saAll.addEventListener('change', function() {
+  document.querySelectorAll('.acb').forEach(cb => { cb.checked = this.checked; });
+  updateAC();
+});
+
+// ── SAVE AS PDF — opens clean document in new window, no canvas/screenshot issues ──
+function printAll() {
+  const btn = document.querySelector('.btn-p');
+  btn.textContent = '⏳ BUILDING…';
+  btn.disabled = true;
+
+  // ── Collect form data ──
+  const facs    = document.querySelectorAll('.fac-inp');
+  const facName = facs[0]?.value?.trim() || '—';
+  const county  = facs[1]?.value?.trim() || '—';
+  const state   = facs[2]?.value?.trim() || '—';
+  const beds    = facs[3]?.value?.trim() || '—';
+  const dateVal = document.getElementById('today')?.value || '';
+  const byVal   = document.querySelectorAll('.hdr-field input')[1]?.value || '';
+
+  // Apps
+  const paidRows = [...document.querySelectorAll('#p-apps .app-cols .ac:first-child .ar')];
+  const freeRows = [...document.querySelectorAll('#p-apps .app-cols .ac:last-child .ar')];
+  const paidApps = paidRows.map(r => ({ name: r.querySelector('.an')?.textContent?.trim(), on: r.querySelector('.acb')?.checked }));
+  const freeApps = freeRows.map(r => ({ name: r.querySelector('.an')?.textContent?.trim(), on: r.querySelector('.acb')?.checked }));
+
+  // Security features
+  const facexOn     = document.getElementById('facex-tog')?.checked;
+  const facexBlurOn = document.getElementById('facexblur-tog')?.checked;
+  const securePinOn = document.getElementById('securepin-tog')?.checked;
+
+  // Rate cards
+  const allRateCards = document.querySelectorAll('#p-rates .rate-card');
+  const cVal  = (card, i=0) => card?.querySelectorAll('.rate-inp')[i]?.value || '—';
+  const cTime = (card, i=0) => { const v = card?.querySelectorAll('.time-inp')[i]?.value; if (!v) return '—'; const [h,m]=v.split(':'); return `${+h%12||12}:${m} ${+h>=12?'PM':'AM'}`; };
+  const cOn   = card => card?.querySelector('.tog-switch input')?.checked ? 'ON' : 'OFF';
+
+  const phoneCard=allRateCards[0], videoCard=allRateCards[1];
+  const smsCard=allRateCards[2], photosCard=allRateCards[3], smsCommCard=allRateCards[4], emsgCard=allRateCards[5];
+  const tabBlockCard=allRateCards[6], tabMinCard=allRateCards[7], tabCommCard=allRateCards[8], tabCountCard=allRateCards[9];
+
+  // Request forms
+  const enabledForms = [...document.querySelectorAll('.fr.on')].map(row => ({
+    name:  row.querySelector('.fn')?.textContent?.trim() || '',
+    email: row.querySelector('.ne-cb')?.checked ? 'No email' : (row.querySelector('.ei')?.value?.trim() || '—'),
+    limit: row.querySelector('.limit-sel')?.value || 'No limit',
+    pinned: ['Request of Staff','Grievance','Medical'].includes(row.querySelector('.fn')?.textContent?.trim())
+  }));
+  const notes = document.querySelector('.ta')?.value?.trim() || '';
+
+  // ── Helper: checkbox cell ──
+  const cb = on => `<span style="display:inline-flex;align-items:center;justify-content:center;width:13px;height:13px;border:1.5px solid ${on?'#0d2137':'#bbb'};border-radius:2px;background:${on?'#0d2137':'#fff'};flex-shrink:0;">${on?'<span style="color:#fff;font-size:9px;font-weight:900;line-height:1;">✓</span>':''}</span>`;
+  const onBadge = on => `<span style="font-size:8pt;font-weight:700;padding:2px 8px;border-radius:10px;background:${on?'#e8f7ed':'#f4f4f4'};color:${on?'#1a8c44':'#999'};border:1px solid ${on?'#b8e0c4':'#ddd'};">${on?'ON':'OFF'}</span>`;
+
+  // ── Build clean document HTML ──
+  const doc = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>${facName} — Circuits Configuration</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Rajdhani',Helvetica,sans-serif; font-size:11pt; color:#111; background:#fff; }
+  .hdr { background:#0d2137; padding:14px 28px; display:flex; align-items:center; justify-content:space-between; }
+  .logo { width:38px;height:38px;background:linear-gradient(135deg,#2a9ae8,#1460a8);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:900;color:#fff; }
+  .brand { font-size:16pt; font-weight:700; letter-spacing:4px; color:#fff; }
+  .sub   { font-size:8pt; letter-spacing:2px; color:#7aaad4; margin-top:2px; }
+  .hdr-lbl { font-size:7pt; letter-spacing:2px; color:#7aaad4; margin-bottom:2px; }
+  .hdr-val { font-size:10pt; font-weight:600; color:#d0e8ff; }
+  .fac-bar  { background:#f4f7fb; border-bottom:2px solid #0d2137; padding:10px 28px; display:flex; gap:24px; }
+  .fac-f    { display:flex; flex-direction:column; gap:2px; }
+  .fac-lbl  { font-size:7pt; font-weight:700; letter-spacing:1.5px; color:#888; text-transform:uppercase; }
+  .fac-val  { font-size:12pt; font-weight:700; color:#111; border-bottom:1.5px solid #bbb; padding-bottom:2px; min-width:60px; }
+  .body     { padding:16px 28px; }
+  .sec-hdr  { background:#0d2137; padding:7px 14px; display:flex; align-items:center; justify-content:space-between; border-radius:4px 4px 0 0; margin-top:14px; }
+  .sec-t    { font-size:9pt; font-weight:700; letter-spacing:2.5px; color:#a0c8e8; }
+  .sec-s    { font-size:7.5pt; color:#5a8aaa; }
+  .sec-body { border:1px solid #ccc; border-top:none; border-radius:0 0 4px 4px; padding:12px 14px; background:#fff; }
+  .sec-body.np { padding:0; }
+  .cols2    { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .cols3    { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+  .cols4    { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:10px; }
+  .app-col  { border:1px solid #ddd; border-radius:4px; overflow:hidden; }
+  .app-col-hdr { background:#f4f7fb; padding:6px 11px; border-bottom:1px solid #ddd; display:flex; align-items:center; justify-content:space-between; }
+  .app-col-t { font-size:8pt; font-weight:700; letter-spacing:2px; color:#444; }
+  .badge-g  { font-size:7pt;font-weight:700;padding:2px 6px;border-radius:3px;background:#a8600022;color:#a86000;border:1px solid #a8600055; }
+  .badge-b  { font-size:7pt;font-weight:700;padding:2px 6px;border-radius:3px;background:#1479c822;color:#1479c8;border:1px solid #1479c855; }
+  .app-row  { display:flex; align-items:center; gap:8px; padding:5px 11px; border-bottom:1px solid #f0f0f0; }
+  .app-row:last-child { border-bottom:none; }
+  .app-nm   { font-size:10pt; flex:1; }
+  .both     { font-size:7pt; padding:1px 5px; border-radius:3px; background:#e8eef4; color:#888; border:1px solid #ddd; margin-left:auto; }
+  .feat-row { display:flex; align-items:center; gap:12px; padding:11px 14px; border-bottom:1px solid #eee; }
+  .feat-row:last-child { border-bottom:none; }
+  .feat-icon { font-size:18pt; }
+  .feat-name { font-size:11pt; font-weight:700; color:#111; flex:1; }
+  .rcard  { border:1px solid #ddd; border-radius:4px; padding:10px; background:#fff; }
+  .rl     { font-size:7pt; font-weight:700; letter-spacing:1.5px; color:#888; text-transform:uppercase; margin-bottom:3px; }
+  .rv     { font-size:15pt; font-weight:700; color:#111; }
+  .ru     { font-size:8pt; color:#888; font-weight:400; }
+  .rbox   { background:#f4f7fb; border:1px solid #ddd; border-radius:3px; padding:6px 9px; margin-top:3px; }
+  .lbox   { background:#eef2f6; border:1px solid #ccc; border-radius:3px; padding:6px 9px; margin-top:3px; display:flex; align-items:baseline; gap:5px; }
+  .ln     { font-size:15pt; font-weight:700; color:#555; }
+  .lu     { font-size:8pt; color:#999; }
+  .srow   { display:flex; align-items:center; gap:7px; margin-top:5px; }
+  .sbox   { background:#f4f7fb; border:1px solid #ddd; border-radius:3px; padding:5px 9px; font-size:10pt; font-weight:700; color:#111; }
+  .ssep   { font-size:11pt; color:#aaa; }
+  .fr-row { display:flex; align-items:flex-start; gap:9px; padding:6px 0; border-bottom:1px solid #eee; }
+  .fr-row:last-child { border-bottom:none; }
+  .fr-name { font-size:10pt; flex:1; }
+  .fr-name.on { font-weight:700; color:#111; }
+  .fr-name.off { font-weight:400; color:#999; }
+  .fr-chips { display:flex; gap:6px; flex-wrap:wrap; margin-top:3px; }
+  .chip-b { font-size:8pt; padding:1px 7px; border-radius:10px; background:#1479c820; color:#1479c8; border:1px solid #1479c855; }
+  .chip-g { font-size:8pt; padding:1px 7px; border-radius:10px; background:#1a8c4420; color:#1a8c44; border:1px solid #1a8c4455; }
+  .pin    { font-size:7pt; font-weight:700; padding:1px 6px; border-radius:3px; background:#fff8e0; color:#856404; border:1px solid #ffc107; }
+  .notes  { border:1px solid #ddd; border-radius:4px; padding:10px; min-height:60px; font-size:10pt; color:#333; background:#fafafa; white-space:pre-wrap; }
+  .foot   { background:#0d2137; padding:10px 28px; text-align:center; margin-top:20px; }
+  .foot-t { font-size:8pt; letter-spacing:2px; color:#5a8aaa; }
+  @media print {
+    body { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .sec-hdr { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .hdr,.foot { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .fr-row { page-break-inside:avoid; }
+    .sec-hdr { page-break-after:avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div class="logo">C</div>
+    <div><div class="brand">CIRCUITS</div><div class="sub">Facility Configuration Form</div></div>
+  </div>
+  <div style="text-align:right;">
+    <div class="hdr-lbl">DATE</div><div class="hdr-val">${dateVal}</div>
+    <div class="hdr-lbl" style="margin-top:6px;">COMPLETED BY</div><div class="hdr-val">${byVal}</div>
+  </div>
+</div>
+
+<div class="fac-bar">
+  <div class="fac-f" style="flex:3;"><div class="fac-lbl">Facility Name</div><div class="fac-val" style="font-size:13pt;">${facName}</div></div>
+  <div class="fac-f" style="flex:2;"><div class="fac-lbl">County</div><div class="fac-val">${county}</div></div>
+  <div class="fac-f"><div class="fac-lbl">State</div><div class="fac-val">${state}</div></div>
+  <div class="fac-f"><div class="fac-lbl"># Beds</div><div class="fac-val">${beds}</div></div>
+</div>
+
+<div class="body">
+
+  <!-- APPS -->
+  <div class="sec-hdr" style="margin-top:0;">
+    <span class="sec-t">APP CONFIGURATION</span>
+    <span class="sec-s">ProdigyVision appears on both logins</span>
+  </div>
+  <div class="sec-body">
+    <div class="cols2">
+      <div class="app-col" style="border-top:3px solid #a86000;">
+        <div class="app-col-hdr"><span class="app-col-t">PAID LOGIN</span><span class="badge-g">Premium</span></div>
+        ${paidApps.map(a=>`<div class="app-row">${cb(a.on)}<span class="app-nm" style="color:${a.on?'#111':'#bbb'};font-weight:${a.on?700:400};">${a.name}</span>${a.name==='ProdigyVision'?'<span class="both">BOTH</span>':''}</div>`).join('')}
+      </div>
+      <div class="app-col" style="border-top:3px solid #1479c8;">
+        <div class="app-col-hdr"><span class="app-col-t">FREE LOGIN</span><span class="badge-b">Standard</span></div>
+        ${freeApps.map(a=>`<div class="app-row">${cb(a.on)}<span class="app-nm" style="color:${a.on?'#111':'#bbb'};font-weight:${a.on?700:400};">${a.name}</span>${a.name==='ProdigyVision'?'<span class="both">BOTH</span>':''}</div>`).join('')}
+      </div>
+    </div>
+  </div>
+
+  <!-- SECURITY FEATURES -->
+  <div class="sec-hdr">
+    <span class="sec-t">SECURITY FEATURES</span>
+  </div>
+  <div class="sec-body np">
+    <div class="feat-row">${`<span class="feat-icon">🪪</span><span class="feat-name">FaceX</span>${onBadge(facexOn)}`}</div>
+    <div class="feat-row">${`<span class="feat-icon">🫥</span><span class="feat-name">FaceX Blur</span>${onBadge(facexBlurOn)}`}</div>
+    <div class="feat-row">${`<span class="feat-icon">🔐</span><span class="feat-name">Secure PIN</span>${onBadge(securePinOn)}`}</div>
+  </div>
+
+  <!-- PHONE & VIDEO -->
+  <div class="sec-hdr">
+    <span class="sec-t">PHONE &amp; VIDEO</span>
+    <span class="sec-s">Facility gets fixed $0.02/min (FCC)</span>
+  </div>
+  <div class="sec-body">
+    <div class="cols2">
+      <div class="rcard">
+        <div style="font-weight:700;font-size:11pt;margin-bottom:10px;">📞 Inmate Phone</div>
+        <div class="cols2">
+          <div><div class="rl">INMATE RATE</div><div class="rbox"><span class="rv">$${cVal(phoneCard)}</span><span class="ru"> /min</span></div></div>
+          <div><div class="rl">FACILITY GETS</div><div class="lbox"><span class="ln">$0.02</span><span class="lu">/min 🔒 FCC</span></div></div>
+        </div>
+        <div style="margin-top:9px;"><div class="rl">SCHEDULE</div>
+          <div class="srow"><div class="sbox">${cTime(phoneCard,0)}</div><span class="ssep">—</span><div class="sbox">${cTime(phoneCard,1)}</div>${onBadge(cOn(phoneCard))}</div>
+        </div>
+      </div>
+      <div class="rcard">
+        <div style="font-weight:700;font-size:11pt;margin-bottom:10px;">📹 Video Visitation</div>
+        <div class="cols2">
+          <div><div class="rl">INMATE RATE</div><div class="rbox"><span class="rv">$${cVal(videoCard)}</span><span class="ru"> /min</span></div></div>
+          <div><div class="rl">FACILITY GETS</div><div class="lbox"><span class="ln">$0.02</span><span class="lu">/min 🔒 FCC</span></div></div>
+        </div>
+        <div style="margin-top:9px;"><div class="rl">SCHEDULE</div>
+          <div class="srow"><div class="sbox">${cTime(videoCard,0)}</div><span class="ssep">—</span><div class="sbox">${cTime(videoCard,1)}</div>${onBadge(cOn(videoCard))}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MESSAGING -->
+  <div style="page-break-before:always;">
+  <div class="sec-hdr">
+    <span class="sec-t">MESSAGING — RATES &amp; COMMISSION</span>
+    <span class="sec-s">SMS and Photos have separate rates · commission % applies to both</span>
+  </div>
+  <div class="sec-body">
+    <div class="cols4">
+      <div class="rcard"><div style="font-weight:700;margin-bottom:8px;">💬 SMS</div><div class="rl">RATE</div><div class="rbox"><span class="rv">$${cVal(smsCard)}</span><span class="ru"> /msg</span></div></div>
+      <div class="rcard"><div style="font-weight:700;margin-bottom:8px;">📷 Photos</div><div class="rl">RATE</div><div class="rbox"><span class="rv">$${cVal(photosCard)}</span><span class="ru"> /msg</span></div></div>
+      <div class="rcard" style="border-left:3px solid #1479c8;"><div style="font-weight:700;color:#1479c8;margin-bottom:8px;">📊 SMS &amp; Photos Commission</div><div class="rl">SHARED %</div><div class="rbox"><span class="rv">${cVal(smsCommCard)}</span><span class="ru"> %</span></div></div>
+      <div class="rcard"><div style="font-weight:700;margin-bottom:8px;">✉️ E-Messaging</div>
+        <div class="rl">RATE</div><div class="rbox"><span class="rv">$${cVal(emsgCard)}</span><span class="ru"> /msg</span></div>
+        <div style="margin-top:7px;"><div class="rl">COMMISSION</div><div class="rbox"><span class="rv">${cVal(emsgCard,1)}</span><span class="ru"> %</span></div></div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- TABLETS -->
+  <div class="sec-hdr">
+    <span class="sec-t">TABLETS — RATE &amp; COMMISSION</span>
+  </div>
+  <div class="sec-body">
+    <div class="cols4">
+      <div class="rcard"><div style="font-weight:700;margin-bottom:8px;">💰 Block Rate</div>
+        <div class="rl">PRICE</div><div class="rbox"><span class="rv">$${cVal(tabBlockCard,0)}</span></div>
+        <div style="margin-top:7px;"><div class="rl">FOR (HOURS)</div><div class="rbox"><span class="rv">${cVal(tabBlockCard,1)}</span><span class="ru"> hrs</span></div></div>
+      </div>
+      <div class="rcard"><div style="font-weight:700;margin-bottom:8px;">⏱️ Per-Minute Rate</div><div class="rl">RATE</div><div class="rbox"><span class="rv">$${cVal(tabMinCard)}</span><span class="ru"> /min</span></div></div>
+      <div class="rcard"><div style="font-weight:700;margin-bottom:8px;">📱 Commission</div><div class="rl">FACILITY %</div><div class="rbox"><span class="rv">${cVal(tabCommCard)}</span><span class="ru"> %</span></div></div>
+      <div class="rcard"><div style="font-weight:700;margin-bottom:8px;">🔢 Count &amp; Schedule</div>
+        <div class="rl">UNITS</div><div class="rbox"><span class="rv">${cVal(tabCountCard)}</span><span class="ru"> units</span></div>
+        <div style="margin-top:7px;"><div class="rl">SCHEDULE</div>
+          <div class="srow"><div class="sbox">${cTime(tabCountCard,0)}</div><span class="ssep">—</span><div class="sbox">${cTime(tabCountCard,1)}</div>${onBadge(cOn(tabCountCard))}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REQUEST FORMS -->
+  <div class="sec-hdr">
+    <span class="sec-t">REQUEST FORMS</span>
+    <span class="sec-s">${enabledForms.length} of 60 enabled</span>
+  </div>
+  <div class="sec-body">
+    ${enabledForms.map(f=>`
+      <div class="fr-row">
+        ${cb(true)}
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:7px;">
+            <span class="fr-name on">${f.name}</span>
+            ${f.pinned?'<span class="pin">★ TOP</span>':''}
+          </div>
+          <div class="fr-chips">
+            <span class="chip-b">${f.email}</span>
+            <span class="chip-g">${f.limit}</span>
+          </div>
+        </div>
+      </div>`).join('')}
+  </div>
+
+  <!-- NOTES -->
+  <div class="sec-hdr"><span class="sec-t">NOTES</span></div>
+  <div class="sec-body">
+    <div class="notes">${notes || '—'}</div>
+  </div>
+
+</div>
+
+<div class="foot"><div class="foot-t">PRODIGY SOLUTIONS INC. · CIRCUITS PLATFORM · FACILITY CONFIGURATION</div></div>
+
+<script>window.onload = function() { window.print(); };<\/script>
+</body></html>`;
+
+  // Open in new window — browser's native print gives perfect PDF output
+  const w = window.open('', '_blank', 'width=900,height=700');
+  if (!w) {
+    alert('Please allow pop-ups for this page, then try again.');
+    btn.textContent = '⬇ SAVE AS PDF';
+    btn.disabled = false;
+    return;
+  }
+  w.document.write(doc);
+  w.document.close();
+
+  btn.textContent = '⬇ SAVE AS PDF';
+  btn.disabled = false;
+}
+</script>
+</body>
+</html>

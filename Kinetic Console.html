@@ -1,0 +1,993 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Kinetic Console</title>
+<style>
+:root{
+  --bg:#f4f6f9;--panel:#fff;--ink:#1f2937;--muted:#6b7280;--line:#e5e7eb;
+  --accent:#2563eb;--accent-soft:#eff6ff;
+  --red:#dc2626;--red-soft:#fef2f2;
+  --green:#16a34a;--green-soft:#f0fdf4;
+  --amber:#d97706;--amber-soft:#fffbeb;
+  --purple:#7c3aed;--purple-soft:#f5f3ff;
+  --teal:#0891b2;--teal-soft:#ecfeff;
+  --sidebar:#1f2937;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:var(--bg)}
+.app{display:grid;grid-template-columns:220px 1fr;grid-template-rows:52px 1fr;height:100vh}
+
+/* ── HEADER ── */
+header.top{grid-column:1/3;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:#111827;color:#fff;z-index:20}
+.brand{font-weight:600;font-size:15px;display:flex;align-items:center;gap:10px}
+.hdr-right{display:flex;align-items:center;gap:16px;font-size:13px;color:#9ca3af}
+.hdr-support{font-size:12px}
+.user-btn{display:flex;align-items:center;gap:8px;padding:5px 10px;border-radius:6px;cursor:pointer;border:1px solid rgba(255,255,255,.12)}
+.user-btn:hover{background:rgba(255,255,255,.08)}
+.user-ava{width:28px;height:28px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:11px;color:#fff;flex-shrink:0}
+
+/* ── SIDEBAR ── */
+aside.nav{background:var(--sidebar);color:#cbd5e1;padding:8px 0 24px;overflow-y:auto}
+.nav-grp{padding:10px 16px 4px;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#4b5563;font-weight:600;margin-top:4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 16px;color:#9ca3af;border-left:3px solid transparent;cursor:pointer;font-size:13px;user-select:none;transition:background .1s,color .1s,border-color .1s}
+.nav-item:hover{background:#273449;color:#e5e7eb}
+.nav-item.active{background:rgba(37,99,235,.2);color:#fff;border-left-color:var(--accent)}
+.nav-icon{width:16px;text-align:center;flex-shrink:0;opacity:.75}
+.nav-item.active .nav-icon{opacity:1}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:999px}
+.nav-badge.amber{background:var(--amber)}
+
+/* ── MAIN ── */
+#page{overflow:auto;padding:20px 24px;background:var(--bg)}
+
+/* ── PAGE HEADER ── */
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.ph h1{font-size:22px;font-weight:600}
+.ph-acts{display:flex;gap:8px}
+.bc{font-size:13px;color:var(--muted);margin-bottom:14px}
+.bc a{color:var(--accent);text-decoration:none}
+.bc a:hover{text-decoration:underline}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid var(--line);background:#fff;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit;white-space:nowrap;transition:background .1s}
+.btn:hover{background:#f9fafb}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.primary:hover{background:#1d4ed8}
+.btn.danger{background:var(--red);color:#fff;border-color:var(--red)}
+.btn.danger:hover{background:#b91c1c}
+.btn.success{background:var(--green);color:#fff;border-color:var(--green)}
+.btn.success:hover{background:#15803d}
+.btn.sm{padding:4px 9px;font-size:12px}
+
+/* ── PANELS ── */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px}
+.pnl-h{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--line)}
+.pnl-h h2{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.pnl-b{padding:16px}
+
+/* ── KPIs ── */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;cursor:pointer;transition:border-color .15s}
+.kpi:hover{border-color:#93c5fd}
+.kpi.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.kpi-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+.kpi-top{display:flex;justify-content:space-between;align-items:flex-start}
+.kpi-val{font-size:26px;font-weight:700;margin:4px 0 2px}
+.kpi-delta{font-size:12px}
+.kpi-delta.up{color:var(--red)}.kpi-delta.dn{color:var(--green)}.kpi-delta.warn{color:var(--amber)}.kpi-delta.neu{color:var(--muted)}
+
+/* ── TABLE ── */
+.tw{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+thead th{position:sticky;top:0;background:#f9fafb;padding:10px 12px;font-size:12px;color:var(--muted);border-bottom:1px solid var(--line);font-weight:600;letter-spacing:.03em;text-align:left;white-space:nowrap}
+thead th.s{cursor:pointer}
+thead th.s:hover{color:var(--ink)}
+tbody td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:middle;font-size:13px}
+tbody tr:last-child td{border-bottom:none}
+tbody tr{cursor:pointer;transition:background .08s}
+tbody tr:hover{background:#f9fafb}
+.ra{display:flex;gap:4px;opacity:0;transition:opacity .1s}
+tbody tr:hover .ra{opacity:1}
+.ib{border:none;background:transparent;padding:4px 6px;cursor:pointer;color:var(--muted);border-radius:4px;font-size:13px;font-family:inherit}
+.ib:hover{background:#e5e7eb;color:var(--ink)}
+.tf{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f9fafb;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+.pgr{display:flex;gap:4px;align-items:center}
+.pgr button{border:1px solid var(--line);background:#fff;padding:4px 10px;border-radius:5px;cursor:pointer;font-size:13px;font-family:inherit}
+.pgr button:disabled{opacity:.4;cursor:not-allowed}
+.pgr button:not(:disabled):hover{background:#f3f4f6}
+
+/* ── BADGES ── */
+.bdg{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:500;padding:3px 8px;border-radius:999px;white-space:nowrap}
+.bdg.red{background:var(--red-soft);color:var(--red)}
+.bdg.blue{background:var(--accent-soft);color:var(--accent)}
+.bdg.green{background:var(--green-soft);color:var(--green)}
+.bdg.amber{background:var(--amber-soft);color:var(--amber)}
+.bdg.purple{background:var(--purple-soft);color:var(--purple)}
+.bdg.gray{background:#f3f4f6;color:var(--muted)}
+.bdg.teal{background:var(--teal-soft);color:var(--teal)}
+
+/* ── FORMS ── */
+.fld{margin-bottom:12px}
+.fld label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:500}
+.fld input,.fld select,.fld textarea{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px;font-family:inherit}
+.fld input:focus,.fld select:focus,.fld textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.fld textarea{min-height:100px;resize:vertical}
+.fgrid{display:grid;gap:12px}
+
+/* ── TOOLBAR ── */
+.tb{display:flex;gap:8px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:12px;flex-wrap:wrap}
+.sr{flex:1;min-width:180px;position:relative}
+.sr input{width:100%;padding:7px 10px 7px 32px;border:1px solid var(--line);border-radius:6px;font-size:13px;font-family:inherit}
+.sr input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.si{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+.sep{width:1px;height:22px;background:var(--line);flex-shrink:0}
+.chip{padding:5px 10px;border:1px solid var(--line);border-radius:999px;background:#fff;cursor:pointer;font-size:12px;display:inline-flex;gap:5px;align-items:center;font-family:inherit}
+.chip .dot{width:7px;height:7px;border-radius:50%}
+.chip:hover{background:#f9fafb}
+.chip.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+
+/* ── FILTER DRAWER ── */
+details.fdr{background:var(--panel);border:1px solid var(--line);border-radius:8px;margin-bottom:12px}
+details.fdr summary{cursor:pointer;list-style:none;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;user-select:none;font-size:13px}
+details.fdr summary::-webkit-details-marker{display:none}
+details.fdr[open] summary{border-bottom:1px solid var(--line)}
+.fg{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:14px}
+.fg3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:14px}
+
+/* ── LAYOUTS ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.gsb{display:grid;grid-template-columns:1fr 290px;gap:16px;align-items:start}
+
+/* ── ALERTS ── */
+.alrt{display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:8px;font-size:13px;margin-bottom:12px}
+.alrt.danger{background:var(--red-soft);border:1px solid #fca5a5;color:#7f1d1d}
+.alrt.warn{background:var(--amber-soft);border:1px solid #fde68a;color:#78350f}
+
+/* ── ACTIVITY FEED ── */
+.fi{display:flex;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.fi:last-child{border-bottom:none}
+.fd{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.ft{font-size:13px;line-height:1.4}
+.fw{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* ── DONUT CHART ── */
+.dw{display:flex;align-items:center;gap:24px;padding:16px}
+.dl{flex:1}
+.li{display:flex;align-items:center;gap:8px;font-size:13px;padding:3px 0}
+.ld{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.lp{margin-left:auto;font-weight:600;color:var(--ink)}
+
+/* ── MISC ── */
+.ellip{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
+.empty{padding:40px;text-align:center;color:var(--muted)}
+.drop-z{border:2px dashed var(--line);border-radius:8px;padding:28px;text-align:center;color:var(--muted);cursor:pointer;transition:border-color .15s,background .15s}
+.drop-z:hover{border-color:var(--accent);background:var(--accent-soft)}
+.kv-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.kv-row:last-child{border-bottom:none}
+.kv-k{color:var(--muted)}
+.kv-v{font-weight:500;text-align:right}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <div class="brand">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.7"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Kinetic Console
+    </div>
+    <div class="hdr-right">
+      <span class="hdr-support">support@prodigytel.com &nbsp;|&nbsp; (844) 941-4545</span>
+      <div class="user-btn">
+        <div class="user-ava">DW</div>
+        <span style="color:#e5e7eb;font-size:13px">D. Weber</span>
+        <span style="color:#6b7280;font-size:11px">▾</span>
+      </div>
+    </div>
+  </header>
+
+  <aside class="nav" id="sidebar">
+    <div class="nav-grp">Main</div>
+    <div class="nav-item" data-page="dashboard">
+      <span class="nav-icon">⊞</span> Dashboard
+    </div>
+    <div class="nav-item" data-page="inmates">
+      <span class="nav-icon">👤</span> Inmates
+      <span class="nav-badge amber">9,631</span>
+    </div>
+    <div class="nav-item" data-page="messaging">
+      <span class="nav-icon">💬</span> Messaging / Requests
+      <span class="nav-badge">478</span>
+    </div>
+
+    <div class="nav-grp">Monitoring</div>
+    <div class="nav-item" data-page="monitoring">
+      <span class="nav-icon">🔊</span> Audio Monitor
+    </div>
+    <div class="nav-item" data-page="monitoring">
+      <span class="nav-icon">📹</span> Video Monitor
+    </div>
+    <div class="nav-item" data-page="monitoring">
+      <span class="nav-icon">📡</span> Echo
+    </div>
+
+    <div class="nav-grp">Reports</div>
+    <div class="nav-item" data-page="reports-callsummary">
+      <span class="nav-icon">📊</span> Call Summary
+    </div>
+    <div class="nav-item" data-page="reports-inmgmt">
+      <span class="nav-icon">📋</span> Inmate Management
+    </div>
+    <div class="nav-item" data-page="placeholder">
+      <span class="nav-icon">📧</span> E-Messages / Photos
+    </div>
+    <div class="nav-item" data-page="placeholder">
+      <span class="nav-icon">💰</span> PIN Balances
+    </div>
+    <div class="nav-item" data-page="placeholder">
+      <span class="nav-icon">📞</span> Phone Usage
+    </div>
+    <div class="nav-item" data-page="placeholder">
+      <span class="nav-icon">📄</span> PIN Statement
+    </div>
+
+    <div class="nav-grp">Administration</div>
+    <div class="nav-item" data-page="admin-facilities">
+      <span class="nav-icon">🏢</span> Facilities
+    </div>
+    <div class="nav-item" data-page="admin-users">
+      <span class="nav-icon">👥</span> Users
+    </div>
+    <div class="nav-item" data-page="placeholder">
+      <span class="nav-icon">🛡</span> Guards
+    </div>
+    <div class="nav-item" data-page="placeholder">
+      <span class="nav-icon">📅</span> Schedules
+    </div>
+    <div class="nav-item" data-page="placeholder">
+      <span class="nav-icon">🔒</span> Permissions
+    </div>
+    <div class="nav-item" data-page="placeholder">
+      <span class="nav-icon">📱</span> Device Control
+    </div>
+    <div class="nav-item" data-page="placeholder">
+      <span class="nav-icon">🖼</span> Photo Approvals
+    </div>
+
+    <div class="nav-grp">Support</div>
+    <div class="nav-item" data-page="help">
+      <span class="nav-icon">❓</span> Help / Documents
+    </div>
+    <div class="nav-item" data-page="trouble">
+      <span class="nav-icon">🐛</span> Submit Ticket
+    </div>
+    <div class="nav-item" data-page="placeholder" style="margin-top:8px">
+      <span class="nav-icon">🚪</span> Logout
+    </div>
+  </aside>
+
+  <main id="page"></main>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   PAGE DEFINITIONS
+═══════════════════════════════════════════ */
+const PAGES = {};
+
+/* ── DASHBOARD ── */
+PAGES.dashboard = () => `
+<div class="ph"><h1>Dashboard</h1><div class="ph-acts">
+  <button class="btn">⬇ Export</button>
+  <button class="btn primary" onclick="nav('messaging')">✉ New Message</button>
+</div></div>
+
+<div class="alrt danger">
+  ⚠ <strong>478 unanswered requests</strong> — 47 have exceeded the 24-hour SLA threshold.
+  <a href="#" style="color:var(--red);font-weight:600;margin-left:10px" onclick="nav('messaging');return false">Triage now →</a>
+</div>
+
+<div class="kpis">
+  <div class="kpi active" onclick="nav('messaging')">
+    <div class="kpi-top"><div class="kpi-lbl">Open Requests</div>
+      <svg width="52" height="26" viewBox="0 0 52 26"><polyline points="0,22 9,18 18,20 27,13 36,8 45,10 52,4" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-linejoin="round" opacity=".5"/></svg>
+    </div>
+    <div class="kpi-val">663</div>
+    <div class="kpi-delta up">▲ 12% vs last week</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-top"><div class="kpi-lbl">Calls Today</div>
+      <svg width="52" height="26" viewBox="0 0 52 26"><polyline points="0,18 9,14 18,16 27,10 36,12 45,8 52,10" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linejoin="round" opacity=".5"/></svg>
+    </div>
+    <div class="kpi-val">1,247</div>
+    <div class="kpi-delta dn">▼ 3% vs yesterday</div>
+  </div>
+  <div class="kpi" onclick="nav('inmates')">
+    <div class="kpi-top"><div class="kpi-lbl">Active Inmates</div>
+      <svg width="52" height="26" viewBox="0 0 52 26"><polyline points="0,14 9,13 18,15 27,14 36,12 45,13 52,13" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-linejoin="round" opacity=".5"/></svg>
+    </div>
+    <div class="kpi-val">9,631</div>
+    <div class="kpi-delta neu">14 facilities</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-top"><div class="kpi-lbl">Video Visits Today</div>
+      <svg width="52" height="26" viewBox="0 0 52 26"><polyline points="0,20 9,16 18,14 27,12 36,10 45,12 52,8" fill="none" stroke="#16a34a" stroke-width="1.5" stroke-linejoin="round" opacity=".5"/></svg>
+    </div>
+    <div class="kpi-val">12</div>
+    <div class="kpi-delta neu">4 scheduled, 8 done</div>
+  </div>
+</div>
+
+<div class="gsb">
+  <div style="display:flex;flex-direction:column;gap:16px">
+
+    <!-- Recent Requests -->
+    <div class="tw">
+      <div class="pnl-h"><h2>Recent Requests</h2><button class="btn sm" onclick="nav('messaging')">View All →</button></div>
+      <table>
+        <thead><tr><th>Received</th><th>Inmate</th><th>Type</th><th>Status</th><th>Assigned To</th></tr></thead>
+        <tbody>
+          ${[
+            ['Today 4:27 PM','JOHNSON, AARON…','Medical','red','jailforms@kineticc…'],
+            ['Today 3:58 PM','JUDD, RANDALL A…','Medical','red','jailforms@kineticc…'],
+            ['Today 3:02 PM','CARRILLO-AYON, …','Request of Staff','red','jailforms@kineticc…'],
+            ['Today 2:40 PM','HERNANDEZ-VARGAS','Medical','red','snavarro@zapata…'],
+            ['Today 1:11 PM','BROWN, CHRISTO…','Commissary','red','Rknipe@rcsheriff…'],
+            ['Today 12:22 PM','WILLSON, HAROLD','Request of Staff','blue','jailforms@kineticc…'],
+          ].map(([d,n,t,s,a])=>`<tr onclick="window.open('Requests View.html','_blank')">
+            <td style="font-size:12px;white-space:nowrap;color:var(--muted)">${d}</td>
+            <td><strong style="font-size:13px">${n}</strong></td>
+            <td style="color:var(--muted)">${t}</td>
+            <td><span class="bdg ${s}">● ${s==='red'?'Unanswered':'Replied'}</span></td>
+            <td class="ellip" style="max-width:130px;font-size:12px;color:var(--muted)">${a}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Call Types Donut -->
+    <div class="panel">
+      <div class="pnl-h"><h2>Call Types — Last 24 Hours</h2>
+        <select class="btn sm" style="font-weight:400;border-color:var(--line)"><option>Last 24 Hours</option><option>Last 7 Days</option><option>Last 30 Days</option></select>
+      </div>
+      <div class="dw">
+        <svg width="130" height="130" viewBox="0 0 130 130">
+          <circle cx="65" cy="65" r="50" fill="none" stroke="#f3f4f6" stroke-width="20"/>
+          <!-- PIN Debit 57.8% = 163/282 -->
+          <circle cx="65" cy="65" r="50" fill="none" stroke="#2563eb" stroke-width="20" stroke-dasharray="163 314" stroke-dashoffset="0" transform="rotate(-90 65 65)"/>
+          <!-- Incomplete 17.1% = 48/282 -->
+          <circle cx="65" cy="65" r="50" fill="none" stroke="#dc2626" stroke-width="20" stroke-dasharray="48 314" stroke-dashoffset="-163" transform="rotate(-90 65 65)"/>
+          <!-- Prepaid 7.9% = 22 -->
+          <circle cx="65" cy="65" r="50" fill="none" stroke="#f59e0b" stroke-width="20" stroke-dasharray="22 314" stroke-dashoffset="-211" transform="rotate(-90 65 65)"/>
+          <!-- Commissary 4.2% = 12 -->
+          <circle cx="65" cy="65" r="50" fill="none" stroke="#16a34a" stroke-width="20" stroke-dasharray="12 314" stroke-dashoffset="-233" transform="rotate(-90 65 65)"/>
+          <!-- PPC 13% = 37 -->
+          <circle cx="65" cy="65" r="50" fill="none" stroke="#7c3aed" stroke-width="20" stroke-dasharray="37 314" stroke-dashoffset="-245" transform="rotate(-90 65 65)"/>
+          <text x="65" y="61" text-anchor="middle" font-size="17" font-weight="700" fill="#1f2937">57.8%</text>
+          <text x="65" y="75" text-anchor="middle" font-size="9" fill="#6b7280">PIN Debit</text>
+        </svg>
+        <div class="dl">
+          ${[['#2563eb','PIN Debit','57.8%'],['#dc2626','Incomplete Call','17.1%'],['#f59e0b','Prepaid','7.9%'],['#16a34a','Commissary','4.2%'],['#7c3aed','PPC Prospect','13.0%']]
+            .map(([c,l,p])=>`<div class="li"><span class="ld" style="background:${c}"></span>${l}<span class="lp">${p}</span></div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right sidebar -->
+  <div style="display:flex;flex-direction:column;gap:16px">
+
+    <!-- Needs Attention -->
+    <div class="panel">
+      <div class="pnl-h"><h2>Needs Attention</h2></div>
+      <div class="pnl-b" style="padding:12px 16px">
+        ${[['Unanswered','478','red'],['Over 24h SLA','47','amber'],['Urgent Priority','8','purple']]
+          .map(([l,v,c])=>`<div class="kv-row"><span class="kv-k">${l}</span><span style="font-size:22px;font-weight:700;color:var(--${c})">${v}</span></div>`).join('')}
+        <button class="btn primary" style="width:100%;justify-content:center;margin-top:14px" onclick="nav('messaging')">Go to Requests →</button>
+      </div>
+    </div>
+
+    <!-- To-Do List -->
+    <div class="panel">
+      <div class="pnl-h"><h2>To-Do List</h2>
+        <select class="btn sm" style="font-weight:400;border-color:var(--line)"><option>Last 24 Hours</option></select>
+      </div>
+      <div>
+        ${[
+          ['Review 47 overdue SLA requests','Messaging · Due today','red','Urgent'],
+          ['Schedule video visits — Alfalfa County','Video · Today 2:00 PM',null,null],
+          ['Approve 23 pending photo messages','Admin · Comanche County OK',null,null],
+          ['Update guard schedules for May','Admin · Schedules',null,null],
+        ].map(([t,s,bc,bl])=>`
+        <div class="todo-row" style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--line);cursor:pointer" onmouseenter="this.style.background='#f9fafb'" onmouseleave="this.style.background=''">
+          <input type="checkbox" style="width:15px;height:15px;flex-shrink:0;cursor:pointer" onclick="event.stopPropagation();this.closest('.todo-row').style.opacity=this.checked?'.45':'1'">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:500">${t}</div>
+            <div style="font-size:11px;color:var(--muted)">${s}</div>
+          </div>
+          ${bl?`<span class="bdg ${bc}" style="font-size:10px">${bl}</span>`:''}
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Top Accounts -->
+    <div class="panel">
+      <div class="pnl-h"><h2>Top Accounts</h2>
+        <select class="btn sm" style="font-weight:400;border-color:var(--line)"><option>Last 24h</option><option>Last 7d</option></select>
+      </div>
+      <div class="pnl-b">
+        ${[['Josiah Ray Sepeda…',180],['Patrick Guinn (1000…',170],['George Max Wayse…',130],['Michael Dustin Hols…',96],['Michael Tye Little (1…',78]]
+          .map(([n,v])=>`<div style="margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+              <span style="color:var(--accent);cursor:pointer" onclick="nav('inmates')">${n}</span>
+              <span style="font-weight:600;color:var(--ink)">${v}</span>
+            </div>
+            <div style="height:6px;background:#f3f4f6;border-radius:3px">
+              <div style="height:6px;background:var(--accent);border-radius:3px;width:${Math.round(v/180*100)}%;opacity:.7"></div>
+            </div></div>`).join('')}
+      </div>
+    </div>
+  </div>
+</div>`;
+
+/* ── INMATES ── */
+PAGES.inmates = () => `
+<div class="ph"><h1>Inmates</h1><div class="ph-acts">
+  <button class="btn">⬇ Export</button>
+  <button class="btn">📋 Inmate Management Report</button>
+  <button class="btn primary">+ Add Inmate</button>
+</div></div>
+
+<div class="tb">
+  <div class="sr">
+    <span class="si">🔍</span>
+    <input id="inm-search" placeholder="Search by name, Account #, Doc ID…" oninput="filterInmates()"/>
+  </div>
+  <span class="sep"></span>
+  <button class="chip active" data-ifilter="all" onclick="setInmFilter('all',this)">All (9,631)</button>
+  <button class="chip" data-ifilter="active" onclick="setInmFilter('active',this)"><span class="dot" style="background:var(--green)"></span>Active</button>
+  <button class="chip" data-ifilter="released" onclick="setInmFilter('released',this)"><span class="dot" style="background:var(--muted)"></span>Released</button>
+  <button class="chip" data-ifilter="hold" onclick="setInmFilter('hold',this)"><span class="dot" style="background:var(--amber)"></span>Hold</button>
+  <span class="sep"></span>
+  <button class="btn">🏢 All Facilities ▾</button>
+</div>
+
+<details class="fdr">
+  <summary><span><strong>Advanced Search</strong> <span style="color:var(--muted)">· Date range, facility, account, Doc ID</span></span><span>▾</span></summary>
+  <div class="fg">
+    <div class="fld"><label>Date Entered Start</label><input type="date"/></div>
+    <div class="fld"><label>Date Entered End</label><input type="date"/></div>
+    <div class="fld"><label>Facility</label><select><option>All Facilities</option><option>Comanche County OK</option><option>Zapata County</option><option>RC Sheriff</option><option>Alfalfa County</option></select></div>
+    <div class="fld"><label>Account #</label><input placeholder="Account number"/></div>
+    <div class="fld"><label>Doc ID</label><input placeholder="Document ID"/></div>
+    <div class="fld"><label>Housing Unit</label><input placeholder="e.g. A-144, Pod-E"/></div>
+    <div class="fld"><label>Status</label><select><option>Any</option><option>Active</option><option>Released</option><option>Hold</option></select></div>
+    <div class="fld" style="display:flex;align-items:flex-end;gap:8px">
+      <button class="btn primary" style="flex:1">Search</button>
+      <button class="btn">Clear</button>
+    </div>
+  </div>
+</details>
+
+<div class="tw">
+  <table>
+    <thead><tr>
+      <th class="s">Name ▾</th><th>Account #</th><th>Doc ID</th><th>Housing</th><th>Facility</th><th>Status</th><th>Open Reqs</th><th style="width:80px"></th>
+    </tr></thead>
+    <tbody id="inmate-tbody"></tbody>
+  </table>
+  <div class="tf">
+    <span id="inm-info">Showing <strong>1–15</strong> of <strong>9,631</strong></span>
+    <div class="pgr">
+      <button disabled>« First</button><button disabled>‹ Prev</button>
+      Page <input value="1" style="width:46px;text-align:center;padding:4px;border:1px solid var(--line);border-radius:5px"/> of 643
+      <button>Next ›</button><button>Last »</button>
+    </div>
+  </div>
+</div>`;
+
+/* ── MESSAGING / REQUESTS ── */
+PAGES.messaging = () => `
+<div class="ph"><h1>Messages / Requests</h1><div class="ph-acts">
+  <button class="btn">⬇ Export</button>
+  <button class="btn">📊 Analytics</button>
+  <button class="btn primary" onclick="window.open('Requests.html','_blank')">Open Full View ↗</button>
+</div></div>
+
+<div class="alrt warn" style="margin-bottom:12px">
+  📋 This is an overview. <a href="#" style="color:var(--amber);font-weight:600" onclick="window.open('Requests.html','_blank');return false">Open the full Requests view</a> for search, filtering, bulk actions, and individual request detail.
+</div>
+
+<div class="kpis">
+  <div class="kpi active">
+    <div class="kpi-top"><div class="kpi-lbl">All Open</div>
+      <svg width="52" height="26" viewBox="0 0 52 26"><polyline points="0,22 9,18 18,20 27,13 36,8 45,10 52,4" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-linejoin="round" opacity=".5"/></svg>
+    </div>
+    <div class="kpi-val">663</div><div class="kpi-delta up">▲ 12% vs last week</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-top"><div class="kpi-lbl">Unanswered</div>
+      <svg width="52" height="26" viewBox="0 0 52 26"><polyline points="0,20 9,16 18,18 27,10 36,4 45,6 52,2" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-linejoin="round" opacity=".6"/></svg>
+    </div>
+    <div class="kpi-val" style="color:var(--red)">478</div><div class="kpi-delta up">▲ 34% — needs attention</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-top"><div class="kpi-lbl">Replied</div>
+      <svg width="52" height="26" viewBox="0 0 52 26"><polyline points="0,8 9,10 18,12 27,14 36,16 45,18 52,20" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linejoin="round" opacity=".6"/></svg>
+    </div>
+    <div class="kpi-val" style="color:var(--accent)">112</div><div class="kpi-delta dn">▼ 5%</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-top"><div class="kpi-lbl">Over 24h SLA</div>
+      <svg width="52" height="26" viewBox="0 0 52 26"><polyline points="0,22 9,20 18,16 27,18 36,12 45,10 52,8" fill="none" stroke="#d97706" stroke-width="1.5" stroke-linejoin="round" opacity=".6"/></svg>
+    </div>
+    <div class="kpi-val" style="color:var(--amber)">47</div><div class="kpi-delta warn">⚠ Requires triage</div>
+  </div>
+</div>
+
+<div class="tw">
+  <table>
+    <thead><tr>
+      <th class="s">Received ▾</th><th>Inmate</th><th>Subject</th><th>Type</th><th>Location</th><th>Assigned To</th><th>Priority</th><th>Status</th><th style="width:70px"></th>
+    </tr></thead>
+    <tbody>
+    ${[
+      ['04/27/2026 4:27 PM','JOHNSON, AARON…','Medical inquiry','Medical','East Pod-11','jailforms@kineticc…','normal','red'],
+      ['04/27/2026 3:58 PM','JUDD, RANDALL A…','Cell condition complaint','Medical','CELL 1','jailforms@kineticc…','normal','red'],
+      ['04/27/2026 3:02 PM','CARRILLO-AYON, …','Work assignment req','Request of Staff','Main-3 Pod-D','jailforms@kineticc…','normal','red'],
+      ['04/27/2026 2:40 PM','HERNANDEZ-VARGAS','Chest pain follow-up','Medical','B-6','snavarro@zapata…','urgent','red'],
+      ['04/27/2026 1:11 PM','BROWN, CHRISTO…','Commissary order','Commissary','P-POD','Rknipe@rcsheriff…','normal','red'],
+      ['04/27/2026 12:22 PM','MINYARD, JESSE …','Medical grievance','Medical Grievance','East Pod-02','jailforms@kineticc…','high','red'],
+      ['04/27/2026 11:07 PM','HARRIS, ANASTAZI…','Admin request','Admin Request','T2','allens@cchsheriff…','normal','red'],
+      ['04/27/2026 10:55 AM','SLOAN, ROBERT A…','Request of Staff','Request of Staff','702','jailforms@kineticc…','normal','blue'],
+      ['04/27/2026 9:14 AM','MCBRIDE, CHRIST…','E-Cig request','E-Cig Request','L02','jailforms@kineticc…','normal','blue'],
+      ['04/27/2026 8:02 AM','BUFFINGTON, PEG…','Work request','Request of Staff','E-2','jailforms@kineticc…','normal','green'],
+    ].map(([d,n,sub,t,loc,a,pri,st])=>`<tr onclick="window.open('Requests View.html','_blank')">
+      <td style="font-size:12px;white-space:nowrap;color:var(--muted)">${d}</td>
+      <td><strong>${n}</strong></td>
+      <td><span class="ellip" style="max-width:150px">${sub}</span></td>
+      <td style="font-size:12px;color:var(--muted)">${t}</td>
+      <td style="font-size:12px">${loc}</td>
+      <td><span class="ellip" style="max-width:130px;font-size:12px;color:var(--muted)">${a}</span></td>
+      <td><span class="bdg ${pri==='urgent'?'purple':pri==='high'?'red':'gray'}">● ${pri[0].toUpperCase()+pri.slice(1)}</span></td>
+      <td><span class="bdg ${st==='red'?'red':st==='blue'?'blue':'green'}">● ${st==='red'?'Unanswered':st==='blue'?'Replied':'Closed'}</span></td>
+      <td><div class="ra"><button class="ib" title="Open">👁</button><button class="ib" title="Assign">👤</button><button class="ib" title="Close">✔</button></div></td>
+    </tr>`).join('')}
+    </tbody>
+  </table>
+  <div class="tf">
+    <span>Showing <strong>1–10</strong> of <strong>663</strong></span>
+    <div class="pgr"><button disabled>« First</button><button disabled>‹ Prev</button>Page <input value="1" style="width:46px;text-align:center;padding:4px;border:1px solid var(--line);border-radius:5px"/> of 67<button>Next ›</button><button>Last »</button></div>
+  </div>
+</div>`;
+
+/* ── ADMIN FACILITIES ── */
+PAGES['admin-facilities'] = () => `
+<div class="bc"><a href="#" onclick="nav('dashboard');return false">Dashboard</a> › Administration › Facilities</div>
+<div class="ph"><h1>Facilities</h1><div class="ph-acts">
+  <button class="btn">⬇ Export</button>
+  <button class="btn primary">+ Add Facility</button>
+</div></div>
+
+<div class="tb">
+  <div class="sr"><span class="si">🔍</span><input placeholder="Search facilities…"/></div>
+  <span class="sep"></span>
+  <button class="chip active">All</button>
+  <button class="chip"><span class="dot" style="background:var(--green)"></span>Active</button>
+  <button class="chip"><span class="dot" style="background:var(--muted)"></span>Inactive</button>
+</div>
+
+<div class="tw">
+  <table>
+    <thead><tr>
+      <th class="s">Facility Name ▾</th><th>Location</th><th>Facility ID</th><th>Active Inmates</th><th>Staff Users</th><th>Status</th><th style="width:80px"></th>
+    </tr></thead>
+    <tbody>
+    ${[
+      ['Alfalfa County Jail','Cherokee, OK','ALFALFA-OK',142,4,'active'],
+      ['Calhoun County TX','Port Lavaca, TX','CALHOUN-TX',318,7,'active'],
+      ['Comanche County OK','Lawton, OK','COMANCHE-OK',1204,18,'active'],
+      ['Creek County Jail','Sapulpa, OK','CREEK-OK',467,9,'active'],
+      ['Garfield County Jail','Enid, OK','GARFIELD-OK',389,8,'active'],
+      ['Harper County Jail','Buffalo, OK','HARPER-OK',78,3,'active'],
+      ['Kay County Jail','Newkirk, OK','KAY-OK',256,6,'active'],
+      ['Mayes County Jail','Pryor, OK','MAYES-OK',189,5,'active'],
+      ['RC Sheriff','—','RCSO',412,9,'active'],
+      ['Zapata County','Zapata, TX','ZAPATA-TX',203,5,'active'],
+    ].map(([n,loc,id,inmates,staff,st])=>`<tr>
+      <td><strong>${n}</strong></td>
+      <td style="color:var(--muted)">${loc}</td>
+      <td><code style="font-size:11px;background:#f3f4f6;padding:2px 6px;border-radius:4px">${id}</code></td>
+      <td>${inmates.toLocaleString()}</td>
+      <td>${staff}</td>
+      <td><span class="bdg green">● Active</span></td>
+      <td><div class="ra"><button class="ib" title="Edit">✏</button><button class="ib" title="Settings">⚙</button></div></td>
+    </tr>`).join('')}
+    </tbody>
+  </table>
+  <div class="tf">
+    <span>Showing <strong>10</strong> facilities</span>
+    <div class="pgr"><button disabled>‹ Prev</button><button disabled>Next ›</button></div>
+  </div>
+</div>`;
+
+/* ── ADMIN USERS ── */
+PAGES['admin-users'] = () => `
+<div class="bc"><a href="#" onclick="nav('dashboard');return false">Dashboard</a> › Administration › Users</div>
+<div class="ph"><h1>Users</h1><div class="ph-acts">
+  <button class="btn">⬇ Export</button>
+  <button class="btn primary">+ Add User</button>
+</div></div>
+
+<div class="tb">
+  <div class="sr"><span class="si">🔍</span><input placeholder="Search by name, email, or role…"/></div>
+  <span class="sep"></span>
+  <button class="chip active">All Roles</button>
+  <button class="chip">Admin</button>
+  <button class="chip">Staff</button>
+  <button class="chip">Guard</button>
+  <span class="sep"></span>
+  <button class="btn">🏢 All Facilities ▾</button>
+</div>
+
+<div class="tw">
+  <table>
+    <thead><tr>
+      <th class="s">Name ▾</th><th>Email</th><th>Role</th><th>Facility</th><th>Last Login</th><th>Status</th><th style="width:80px"></th>
+    </tr></thead>
+    <tbody>
+    ${[
+      ['D. Weber','dweber@comanchecountyok.gov','Admin','Comanche County OK','Today 8:14 AM','active'],
+      ['S. Navarro','snavarro@zapatacounty.gov','Staff','Zapata County','Today 9:02 AM','active'],
+      ['R. Knipe','Rknipe@rcsheriff.gov','Staff','RC Sheriff','Yesterday 4:45 PM','active'],
+      ['A. Allens','allens@cchsheriff.net','Admin','Comanche County OK','Today 7:30 AM','active'],
+      ['Jail Forms','jailforms@kinetic.io','System','All Facilities','—','active'],
+      ['D. Richardson','d.richardson@sc.gov','Staff','RC Sheriff','04/25/2026','active'],
+      ['T. Jackson','t.jackson@comanchecountyok.gov','Guard','Comanche County OK','Today 6:00 AM','active'],
+      ['M. Porter','m.porter@zapatacounty.gov','Staff','Zapata County','04/24/2026','inactive'],
+    ].map(([n,e,r,f,l,st])=>`<tr>
+      <td><strong>${n}</strong></td>
+      <td style="font-size:12px;color:var(--muted)">${e}</td>
+      <td><span class="bdg ${r==='Admin'?'purple':r==='System'?'teal':r==='Guard'?'amber':'blue'}">${r}</span></td>
+      <td style="font-size:12px">${f}</td>
+      <td style="font-size:12px;color:var(--muted)">${l}</td>
+      <td><span class="bdg ${st==='active'?'green':'gray'}">● ${st[0].toUpperCase()+st.slice(1)}</span></td>
+      <td><div class="ra"><button class="ib">✏</button><button class="ib">🔑</button></div></td>
+    </tr>`).join('')}
+    </tbody>
+  </table>
+  <div class="tf"><span>8 users</span></div>
+</div>`;
+
+/* ── REPORTS: CALL SUMMARY ── */
+PAGES['reports-callsummary'] = () => `
+<div class="bc"><a href="#" onclick="nav('dashboard');return false">Dashboard</a> › Reports › Call Summary</div>
+<div class="ph"><h1>Call Summary</h1><div class="ph-acts">
+  <button class="btn">⬇ Export CSV</button>
+  <button class="btn">🖨 Print</button>
+  <button class="btn primary">▶ Run Report</button>
+</div></div>
+
+<details class="fdr" open>
+  <summary><span><strong>Report Criteria</strong></span><span>▾</span></summary>
+  <div class="fg3">
+    <div class="fld"><label>Date From</label><input type="date" value="2026-04-01"/></div>
+    <div class="fld"><label>Date To</label><input type="date" value="2026-04-27"/></div>
+    <div class="fld"><label>Facility</label><select><option>All Facilities</option><option>Comanche County OK</option><option>Zapata County</option><option>RC Sheriff</option></select></div>
+    <div class="fld"><label>Call Type</label><select><option>All Types</option><option>PIN Debit</option><option>Prepaid</option><option>Free Call</option><option>Commissary</option></select></div>
+    <div class="fld"><label>Status</label><select><option>All</option><option>Completed</option><option>Incomplete</option></select></div>
+    <div class="fld" style="display:flex;align-items:flex-end;gap:8px">
+      <button class="btn primary" style="flex:1">Run Report</button>
+      <button class="btn">Reset</button>
+    </div>
+  </div>
+</details>
+
+<div class="kpis" style="grid-template-columns:repeat(4,1fr)">
+  <div class="kpi"><div class="kpi-lbl">Total Calls</div><div class="kpi-val">34,821</div><div class="kpi-delta dn">▼ 2% vs prior period</div></div>
+  <div class="kpi"><div class="kpi-lbl">Total Duration</div><div class="kpi-val">4,102h</div><div class="kpi-delta neu">Avg 7.1 min/call</div></div>
+  <div class="kpi"><div class="kpi-lbl">Completed</div><div class="kpi-val">28,934</div><div class="kpi-delta dn">83.1% completion</div></div>
+  <div class="kpi"><div class="kpi-lbl">Incomplete</div><div class="kpi-val" style="color:var(--red)">5,887</div><div class="kpi-delta up">▲ 4.1% vs prior</div></div>
+</div>
+
+<div class="tw">
+  <table>
+    <thead><tr>
+      <th class="s">Date ▾</th><th>Facility</th><th>Call Type</th><th>Total Calls</th><th>Completed</th><th>Incomplete</th><th>Total Duration</th><th>Avg Duration</th>
+    </tr></thead>
+    <tbody>
+    ${[
+      ['04/27/2026','Comanche County OK','PIN Debit',412,348,64,'48h 22m','7.1 min'],
+      ['04/27/2026','Zapata County','PIN Debit',187,156,31,'21h 44m','7.0 min'],
+      ['04/27/2026','RC Sheriff','PIN Debit',203,174,29,'23h 31m','6.9 min'],
+      ['04/26/2026','Comanche County OK','PIN Debit',398,335,63,'46h 11m','7.0 min'],
+      ['04/26/2026','Comanche County OK','Prepaid',98,87,11,'9h 48m','6.7 min'],
+      ['04/26/2026','Zapata County','Commissary',44,41,3,'4h 02m','5.6 min'],
+      ['04/25/2026','All Facilities','Incomplete Call',312,0,312,'—','—'],
+      ['04/25/2026','RC Sheriff','PIN Debit',189,161,28,'19h 55m','7.4 min'],
+    ].map(([d,f,t,tot,comp,incomp,dur,avg])=>`<tr>
+      <td style="white-space:nowrap;font-size:12px;color:var(--muted)">${d}</td>
+      <td style="font-size:13px">${f}</td>
+      <td><span class="bdg blue" style="font-size:11px">${t}</span></td>
+      <td style="font-weight:500">${tot.toLocaleString()}</td>
+      <td style="color:var(--green)">${comp.toLocaleString()}</td>
+      <td style="color:${incomp>50?'var(--red)':'var(--muted)'}">${incomp.toLocaleString()}</td>
+      <td style="font-size:12px">${dur}</td>
+      <td style="font-size:12px;color:var(--muted)">${avg}</td>
+    </tr>`).join('')}
+    </tbody>
+  </table>
+  <div class="tf">
+    <span>Showing <strong>1–8</strong> of <strong>312</strong> records</span>
+    <div class="pgr"><button disabled>‹ Prev</button>Page <input value="1" style="width:46px;text-align:center;padding:4px;border:1px solid var(--line);border-radius:5px"/> of 39<button>Next ›</button></div>
+  </div>
+</div>`;
+
+/* ── REPORTS: INMATE MANAGEMENT ── */
+PAGES['reports-inmgmt'] = () => `
+<div class="bc"><a href="#" onclick="nav('dashboard');return false">Dashboard</a> › Reports › Inmate Management</div>
+<div class="ph"><h1>Inmate Management Report</h1><div class="ph-acts">
+  <button class="btn">⬇ Export CSV</button>
+  <button class="btn primary">▶ Run Report</button>
+</div></div>
+<details class="fdr" open>
+  <summary><span><strong>Report Criteria</strong></span><span>▾</span></summary>
+  <div class="fg">
+    <div class="fld"><label>Date Entered Start</label><input type="date"/></div>
+    <div class="fld"><label>Date Entered End</label><input type="date"/></div>
+    <div class="fld"><label>Facility</label><select><option>All Facilities</option><option>Comanche County OK</option></select></div>
+    <div class="fld"><label>Account #</label><input placeholder="Account number"/></div>
+    <div class="fld"><label>Doc ID</label><input placeholder="Doc ID"/></div>
+    <div class="fld"><label>Status</label><select><option>Any</option><option>Active</option><option>Released</option></select></div>
+    <div class="fld" style="display:flex;align-items:flex-end;gap:8px;grid-column:span 2">
+      <button class="btn primary" style="flex:1">Run Report</button>
+      <button class="btn">Reset</button>
+    </div>
+  </div>
+</details>
+<div class="empty" style="margin-top:32px">
+  <div style="font-size:32px;margin-bottom:10px">📋</div>
+  <div style="font-size:15px;font-weight:500;margin-bottom:6px">Set criteria and run the report</div>
+  <div style="font-size:13px">Use the filters above to define your report parameters, then click Run Report.</div>
+</div>`;
+
+/* ── MONITORING ── */
+PAGES.monitoring = () => `
+<div class="ph"><h1>Monitoring</h1></div>
+<div class="g2">
+  <div class="panel">
+    <div class="pnl-h"><h2>🔊 Audio Monitor</h2><span class="bdg green" style="font-size:11px">● Live</span></div>
+    <div class="pnl-b">
+      <div class="alrt warn" style="margin-bottom:12px">Live audio monitoring requires the Kinetic monitoring application. This is a read-only view.</div>
+      <div class="tb" style="margin-bottom:0">
+        <div class="sr"><span class="si">🔍</span><input placeholder="Search by inmate, facility…"/></div>
+        <button class="btn">🏢 All Facilities ▾</button>
+      </div>
+      <div class="empty"><div style="font-size:28px;margin-bottom:8px">🔊</div>No active audio sessions.<br><span style="font-size:12px">Sessions will appear here when calls are in progress.</span></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="pnl-h"><h2>📹 Video Monitor</h2><span class="bdg green" style="font-size:11px">● Live</span></div>
+    <div class="pnl-b">
+      <div class="alrt warn" style="margin-bottom:12px">Live video monitoring opens in the dedicated PSI monitoring window.</div>
+      <div class="tb" style="margin-bottom:12px">
+        <div class="sr"><span class="si">🔍</span><input placeholder="Search sessions…"/></div>
+        <button class="btn">🏢 All Facilities ▾</button>
+      </div>
+      ${[
+        ['JOHNSON, AARON…','Comanche County OK','Video Visit','In Progress','12:34'],
+        ['GARZA, MARCUS…','Zapata County','Video Visit','Scheduled 2:00 PM','—'],
+        ['WRIGHT, MICAH…','RC Sheriff','Video Visit','Scheduled 3:30 PM','—'],
+      ].map(([n,f,t,st,dur])=>`
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)">
+        <div style="width:36px;height:36px;border-radius:8px;background:#1f2937;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">📹</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:500">${n}</div>
+          <div style="font-size:11px;color:var(--muted)">${f} · ${t}</div>
+        </div>
+        <div style="text-align:right">
+          <span class="bdg ${st.includes('Progress')?'green':'blue'}" style="font-size:11px">${st}</span>
+          ${dur!=='—'?`<div style="font-size:11px;color:var(--muted);margin-top:2px">${dur}</div>`:''}
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>
+</div>`;
+
+/* ── HELP ── */
+PAGES.help = () => `
+<div class="ph"><h1>Help / Documents</h1><div class="ph-acts">
+  <button class="btn">⬇ Download User Guide</button>
+  <button class="btn primary">+ Upload Document</button>
+</div></div>
+
+<div class="tb">
+  <div class="sr"><span class="si">🔍</span><input placeholder="Search documents by name or description…"/></div>
+  <span class="sep"></span>
+  <button class="chip active">All</button>
+  <button class="chip">User Guides</button>
+  <button class="chip">Policy</button>
+  <button class="chip">Forms</button>
+  <button class="chip">Training</button>
+  <span class="sep"></span>
+  <button class="btn">🏢 All Domains ▾</button>
+</div>
+
+<div class="tw">
+  <table>
+    <thead><tr>
+      <th class="s">Document Name ▾</th><th>Description</th><th>Category</th><th>Domain</th><th>Uploaded</th><th style="width:100px">Actions</th>
+    </tr></thead>
+    <tbody>
+    ${[
+      ['Texas JBV Palm Card General','2024 JBV reference card','Forms','Calhoun County TX','04/01/2026'],
+      ['Kinetic Console User Guide','Full staff user guide v3.2','User Guides','All Domains','03/15/2026'],
+      ['Inmate Messaging Policy','Rules for inmate messaging','Policy','All Domains','02/28/2026'],
+      ['Video Visitation Procedures','Step-by-step for video visits','Training','Comanche County OK','02/14/2026'],
+      ['Guard Check Protocol','Guard check schedule and logging','Policy','RC Sheriff','01/30/2026'],
+      ['PIN Account Setup Guide','How to set up inmate PIN accounts','User Guides','All Domains','01/15/2026'],
+      ['Commissary Request Form','Standard commissary request','Forms','Zapata County','01/10/2026'],
+      ['Emergency Procedures','Emergency contact and procedure doc','Policy','All Domains','12/20/2025'],
+    ].map(([n,d,cat,dom,up])=>`<tr>
+      <td><strong style="color:var(--accent);cursor:pointer">${n}</strong></td>
+      <td style="color:var(--muted);font-size:12px">${d}</td>
+      <td><span class="bdg gray" style="font-size:11px">${cat}</span></td>
+      <td style="font-size:12px">${dom}</td>
+      <td style="font-size:12px;color:var(--muted)">${up}</td>
+      <td><div class="ra" style="opacity:1"><button class="ib" title="View">👁</button><button class="ib" title="Download">⬇</button><button class="ib" title="Edit">✏</button></div></td>
+    </tr>`).join('')}
+    </tbody>
+  </table>
+  <div class="tf"><span>8 documents</span></div>
+</div>`;
+
+/* ── TROUBLE TICKET ── */
+PAGES.trouble = () => `
+<div class="bc"><a href="#" onclick="nav('dashboard');return false">Dashboard</a> › Submit Trouble Ticket</div>
+<div class="ph"><h1>Submit Trouble Ticket</h1><div class="ph-acts">
+  <button class="btn" onclick="nav('placeholder')">View My Tickets</button>
+</div></div>
+
+<div class="g2" style="align-items:start">
+  <div class="panel">
+    <div class="pnl-h"><h2>Ticket Details</h2></div>
+    <div class="pnl-b">
+      <div class="fgrid" style="grid-template-columns:1fr 1fr">
+        <div class="fld"><label>Facility *</label><select><option value="">Select facility…</option><option>Comanche County OK</option><option>Zapata County</option><option>RC Sheriff</option></select></div>
+        <div class="fld"><label>Device</label><select><option value="">Select device…</option><option>Kiosk</option><option>Tablet</option><option>Phone Unit</option><option>Video Terminal</option></select></div>
+        <div class="fld"><label>Housing Units Affected</label><select><option>Select…</option><option>A Block</option><option>B Block</option><option>All Units</option></select></div>
+        <div class="fld"><label>Add Inmates (optional)</label><input placeholder="Inmate name, Account # or Doc ID"/></div>
+      </div>
+      <div class="fld"><label>Issue Description *</label><textarea placeholder="Describe the issue in detail — what happened, when it started, what you've already tried…"></textarea></div>
+      <div class="fld"><label>Priority</label>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          ${[['low','Low','gray'],['normal','Normal','blue'],['high','High','red'],['urgent','Urgent','purple']]
+            .map(([v,l,c],i)=>`<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;padding:6px 12px;border:1px solid var(--line);border-radius:6px;background:${i===1?'var(--accent-soft)':'#fff'}">
+              <input type="radio" name="priority" value="${v}" ${i===1?'checked':''} style="accent-color:var(--accent)"> ${l}
+            </label>`).join('')}
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px">
+        <button class="btn">Reset</button>
+        <button class="btn primary">✔ Submit Ticket</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div class="panel">
+      <div class="pnl-h"><h2>Attach Images</h2></div>
+      <div class="pnl-b">
+        <div class="drop-z">
+          <div style="font-size:28px;margin-bottom:8px">🖼</div>
+          <strong>Drop images here</strong>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">or</div>
+          <button class="btn" style="margin-top:10px">Choose File</button>
+          <div style="font-size:11px;color:var(--muted);margin-top:8px">PNG, JPG, GIF up to 10MB</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="pnl-h"><h2>Recent Tickets</h2></div>
+      <div>
+        ${[
+          ['Audio issue — Kiosk A3','Comanche County OK','Open','amber'],
+          ['Tablet not connecting','RC Sheriff','Resolved','green'],
+          ['Video visit freeze','Zapata County','In Progress','blue'],
+        ].map(([t,f,s,c])=>`
+        <div style="padding:10px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:13px;font-weight:500">${t}</div>
+            <div style="font-size:11px;color:var(--muted)">${f}</div>
+          </div>
+          <span class="bdg ${c}" style="font-size:11px">${s}</span>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>
+</div>`;
+
+/* ── PLACEHOLDER ── */
+PAGES.placeholder = () => `
+<div class="panel" style="padding:60px;text-align:center">
+  <div style="font-size:40px;margin-bottom:14px">🚧</div>
+  <h2 style="font-size:20px;margin-bottom:8px">Page in Progress</h2>
+  <p style="color:var(--muted);font-size:14px;margin-bottom:20px">This section of the mockup hasn't been built out yet.</p>
+  <button class="btn primary" onclick="nav('dashboard')">← Back to Dashboard</button>
+</div>`;
+
+/* ═══════════════════════════════════════════
+   ROUTING & INTERACTIVITY
+═══════════════════════════════════════════ */
+
+function nav(id) {
+  const fn = PAGES[id] || PAGES.placeholder;
+  document.getElementById('page').innerHTML = fn();
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.page === id);
+  });
+  window.location.hash = id;
+  document.getElementById('page').scrollTop = 0;
+  // Boot page-specific logic
+  if (id === 'inmates') initInmates();
+}
+
+// Nav click handlers
+document.querySelectorAll('.nav-item[data-page]').forEach(el => {
+  el.addEventListener('click', () => nav(el.dataset.page));
+});
+
+// Hash routing on load
+const hash = window.location.hash.slice(1) || 'dashboard';
+nav(hash);
+
+/* ── INMATES TABLE ── */
+const INMATES = [
+  ['ABERNATHY, DILLON T.','100241','TX-482910','A-Block Cell 4','Comanche County OK','active',2],
+  ['ACOSTA, JAMES R.','100189','TX-291044','B-6','Zapata County','active',0],
+  ['BAILEY, JACOB A.','108443','OK-884421','East Pod-11','Comanche County OK','active',3],
+  ['BROWN, CHRISTOPHER L.','103918','—','P-POD','RC Sheriff','active',1],
+  ['BUFFINGTON, PEGGY S.','109221','OK-112934','E-2','Comanche County OK','active',1],
+  ['BURUATO, ARTHUR M.','104812','TX-009871','A-161','Zapata County','active',4],
+  ['CARRILLO-AYON, JOSE','106631','TX-771234','Main-3 Pod-D','Comanche County OK','active',2],
+  ['DAVIS, TANYA R.','107721','OK-334512','D-7','Comanche County OK','hold',1],
+  ['FARLEY, JACOB C.','102341','OK-229944','F-08','RC Sheriff','active',0],
+  ['GARCIA, MIGUEL A.','105512','TX-441923','B-12','Zapata County','active',3],
+  ['HALEY, STEPHEN W.','101923','OK-883312','D-9','Comanche County OK','active',1],
+  ['HARRIS, ANASTAZIA B.','108812','OK-991234','T2','Comanche County OK','active',2],
+  ['HERNANDEZ-VARGAS, J.','104491','TX-182934','B-6','Zapata County','active',5],
+  ['HOLCOMB, MELINDA A.','103221','OK-441122','322','Comanche County OK','active',0],
+  ['JOHNSON, AARON K.','109341','OK-778821','East Pod-11','Comanche County OK','active',4],
+];
+
+function initInmates() {
+  renderInmates(INMATES);
+}
+function renderInmates(rows) {
+  document.getElementById('inmate-tbody').innerHTML = rows.map(([n,acc,doc,loc,fac,st,reqs])=>`
+  <tr onclick="nav('placeholder')">
+    <td><strong>${n}</strong></td>
+    <td style="font-size:12px;color:var(--muted)">${acc}</td>
+    <td style="font-size:12px;color:var(--muted)">${doc}</td>
+    <td style="font-size:12px">${loc}</td>
+    <td style="font-size:12px">${fac}</td>
+    <td><span class="bdg ${st==='active'?'green':st==='hold'?'amber':'gray'}">● ${st[0].toUpperCase()+st.slice(1)}</span></td>
+    <td>${reqs>0?`<span class="bdg ${reqs>=3?'red':reqs>=1?'amber':'gray'}" style="font-size:11px">${reqs} open</span>`:'<span style="color:var(--muted);font-size:12px">—</span>'}</td>
+    <td><div class="ra"><button class="ib" title="View">👁</button><button class="ib" title="Message">💬</button></div></td>
+  </tr>`).join('');
+}
+function filterInmates() {
+  const q = document.getElementById('inm-search').value.toLowerCase();
+  const filtered = INMATES.filter(r => r[0].toLowerCase().includes(q)||r[1].includes(q)||r[2].toLowerCase().includes(q));
+  renderInmates(filtered);
+  document.getElementById('inm-info').innerHTML = `Showing <strong>${filtered.length}</strong> of <strong>9,631</strong>`;
+}
+function setInmFilter(f, el) {
+  document.querySelectorAll('[data-ifilter]').forEach(c=>c.classList.toggle('active', c===el));
+}
+</script>
+</body>
+</html>

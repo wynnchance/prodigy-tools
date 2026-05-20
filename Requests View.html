@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Request · WYKOFF, FRANCIS — Kinetic Console</title>
+<style>
+  :root{
+    --bg:#f4f6f9;--panel:#fff;--ink:#1f2937;--muted:#6b7280;--line:#e5e7eb;
+    --accent:#2563eb;--accent-soft:#eff6ff;--red:#dc2626;--red-soft:#fef2f2;
+    --green:#16a34a;--green-soft:#f0fdf4;--amber:#d97706;--amber-soft:#fffbeb;
+    --purple:#7c3aed;--purple-soft:#f5f3ff;--sidebar:#1f2937;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:var(--bg)}
+  .app{display:grid;grid-template-columns:220px 1fr;grid-template-rows:52px 1fr;height:100%}
+
+  /* ── Header ── */
+  header.top{grid-column:1/3;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:#111827;color:#fff}
+  header.top .brand{font-weight:700;font-size:15px;letter-spacing:-.3px}
+  header.top .brand span{color:#60a5fa}
+  header.top .right{display:flex;align-items:center;gap:14px}
+  header.top .right .support{color:#9ca3af;font-size:13px}
+  .avatar{width:30px;height:30px;border-radius:50%;background:#2563eb;color:#fff;font-size:12px;font-weight:600;display:inline-flex;align-items:center;justify-content:center}
+
+  /* ── Sidebar ── */
+  aside.nav{background:var(--sidebar);color:#cbd5e1;padding:12px 0;overflow-y:auto}
+  aside.nav .group{padding:8px 16px 4px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#9ca3af}
+  aside.nav a{display:block;padding:8px 16px;color:#cbd5e1;text-decoration:none;border-left:3px solid transparent;font-size:13px}
+  aside.nav a:hover{background:#273449;color:#fff}
+  aside.nav a.active{background:#273449;color:#fff;border-left-color:var(--accent)}
+
+  /* ── Main ── */
+  main{overflow:auto;padding:0;display:flex;flex-direction:column}
+
+  /* SLA banner */
+  .sla-banner{background:#fff7ed;border-bottom:2px solid #f59e0b;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0}
+  .sla-banner .msg{font-size:13px;color:#92400e;display:flex;align-items:center;gap:8px}
+  .sla-banner .msg svg{flex-shrink:0}
+  .sla-banner .dismiss{background:none;border:none;cursor:pointer;color:#92400e;font-size:18px;line-height:1;padding:0 4px}
+  .sla-banner.hidden{display:none}
+
+  .main-body{padding:16px 24px;flex:1;overflow:auto}
+
+  /* Breadcrumb */
+  .top-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .crumbs{color:var(--muted);font-size:13px}
+  .crumbs a{color:var(--accent);text-decoration:none}
+  .crumbs a:hover{text-decoration:underline}
+  .req-nav{display:flex;gap:6px;align-items:center}
+
+  /* Buttons */
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid var(--line);background:#fff;border-radius:6px;cursor:pointer;font-size:13px;color:var(--ink);font-family:inherit}
+  .btn:hover{background:#f9fafb}
+  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .btn.primary:hover{background:#1d4ed8}
+  .btn.danger{background:var(--red);color:#fff;border-color:var(--red)}
+  .btn.danger:hover{background:#b91c1c}
+  .btn.success{background:var(--green);color:#fff;border-color:var(--green)}
+  .btn.success:hover{background:#15803d}
+  .btn.amber{background:var(--amber);color:#fff;border-color:var(--amber)}
+  kbd{font:11px ui-monospace,monospace;background:#f3f4f6;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:1px 5px;color:var(--muted)}
+
+  /* Layout grid */
+  .grid{display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start}
+
+  /* Panel */
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .panel h2{font-size:14px;font-weight:600;margin:0;padding:12px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+
+  /* Hero */
+  .hero{padding:16px 20px;display:flex;justify-content:space-between;gap:16px;align-items:flex-start;border-bottom:1px solid var(--line)}
+  .hero h1{margin:0 0 6px;font-size:20px;font-weight:700}
+  .hero .meta{color:var(--muted);font-size:13px;display:flex;gap:14px;flex-wrap:wrap}
+  .hero .meta b{color:var(--ink);font-weight:500}
+
+  /* Status badges */
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:999px;font-weight:500;font-size:12px}
+  .badge.unanswered{background:var(--red-soft);color:var(--red)}
+  .badge.replied{background:var(--accent-soft);color:var(--accent)}
+  .badge.closed{background:var(--green-soft);color:var(--green)}
+  .badge.urgent{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+  .badge.high{background:#fff7ed;color:#d97706;border:1px solid #fed7aa}
+  .badge.normal{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0}
+
+  /* Message body */
+  .msg-body{padding:16px 20px}
+  .field-row{display:grid;grid-template-columns:160px 1fr;gap:4px 16px;padding:8px 0;border-bottom:1px dashed var(--line);align-items:start}
+  .field-row:last-child{border-bottom:none}
+  .field-row .k{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.04em;padding-top:2px}
+  .field-row .v{font-size:14px}
+
+  .disclaimer{margin-top:14px;padding:10px 12px;background:#fff7ed;border-left:3px solid #f59e0b;font-size:12px;color:#92400e;border-radius:4px}
+
+  /* Reply thread */
+  .thread{padding:0 20px 16px}
+  .thread-msg{margin-bottom:12px}
+  .thread-msg .t-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .thread-msg .t-avatar{width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+  .thread-msg .t-avatar.staff{background:#dbeafe;color:#1d4ed8}
+  .thread-msg .t-avatar.inmate{background:#f3e8ff;color:#6d28d9}
+  .thread-msg .t-name{font-weight:600;font-size:13px}
+  .thread-msg .t-time{color:var(--muted);font-size:12px}
+  .thread-msg .t-body{margin-left:38px;background:#f9fafb;border:1px solid var(--line);border-radius:8px;padding:10px 14px;font-size:13px;line-height:1.6}
+  .thread-msg.note .t-body{background:#fffbeb;border-color:#fde68a}
+  .thread-msg.note .t-body::before{content:"🔒 Staff Note";display:block;font-size:11px;font-weight:600;color:#92400e;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+
+  /* Composer tabs */
+  .composer{padding:16px 20px;border-top:2px solid var(--line);background:#fafafa}
+  .composer-tabs{display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid var(--line)}
+  .composer-tab{padding:8px 16px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit}
+  .composer-tab:hover{color:var(--ink)}
+  .composer-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+  .composer textarea{width:100%;min-height:110px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;font:14px/1.5 system-ui;resize:vertical;background:#fff}
+  .composer textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .composer-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:8px;flex-wrap:wrap}
+  .composer-foot .left{display:flex;gap:8px;align-items:center}
+  .char-count{color:var(--muted);font-size:12px}
+  .select{padding:6px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px;background:#fff;font-family:inherit}
+
+  /* Action bar */
+  .action-bar{position:sticky;bottom:0;margin-top:16px;display:flex;justify-content:space-between;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 14px;box-shadow:0 -4px 12px rgba(0,0,0,.07)}
+  .action-bar .left{display:flex;gap:8px;flex-wrap:wrap}
+
+  /* Side panels */
+  .sidebox{padding:14px 16px}
+  .sidebox + .sidebox{border-top:1px solid var(--line);padding-top:14px}
+  .sidebox h3{margin:0 0 10px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+  .kv{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed var(--line);font-size:13px}
+  .kv:last-child{border-bottom:none}
+  .kv .k{color:var(--muted)}
+  .kv .v{text-align:right;max-width:60%;word-break:break-word;font-weight:500}
+
+  /* Timeline */
+  .timeline{position:relative;padding-left:20px}
+  .timeline::before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:var(--line)}
+  .tl-item{position:relative;padding:5px 0}
+  .tl-item::before{content:"";position:absolute;left:-18px;top:9px;width:10px;height:10px;border-radius:50%;background:#fff;border:2px solid var(--accent)}
+  .tl-item .when{font-size:11px;color:var(--muted)}
+  .tl-item .what{font-size:13px}
+
+  /* Related requests */
+  .related-item{display:block;padding:9px 12px;border:1px solid var(--line);border-radius:6px;text-decoration:none;color:var(--ink);margin-bottom:8px;font-size:13px;transition:border-color .15s}
+  .related-item:hover{border-color:var(--accent);background:var(--accent-soft)}
+  .related-item .r-id{font-size:11px;color:var(--muted)}
+  .related-item .r-subj{font-weight:500;margin:2px 0}
+  .related-item .r-meta{font-size:11px;color:var(--muted)}
+
+  /* Modal */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:999;animation:fadeIn .15s ease}
+  .modal-overlay.hidden{display:none}
+  .modal{background:#fff;border-radius:10px;width:420px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden}
+  .modal-head{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+  .modal-head h3{font-size:16px;font-weight:600;margin:0}
+  .modal-head .close-x{background:none;border:none;cursor:pointer;font-size:20px;color:var(--muted);line-height:1}
+  .modal-body{padding:20px}
+  .modal-body p{font-size:14px;color:var(--muted);margin-bottom:16px}
+  .modal-body label{font-size:13px;font-weight:500;display:block;margin-bottom:6px}
+  .modal-body textarea{width:100%;min-height:80px;padding:10px;border:1px solid var(--line);border-radius:6px;font:14px/1.5 system-ui;resize:vertical}
+  .modal-foot{padding:14px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px}
+
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+  /* Toast */
+  .toast{position:fixed;bottom:24px;right:24px;background:#1f2937;color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;z-index:1000;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:slideUp .2s ease;pointer-events:none}
+  .toast.hidden{display:none}
+  @keyframes slideUp{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <header class="top">
+    <div class="brand">Kinetic<span>Console</span></div>
+    <div class="right">
+      <span class="support">Support</span>
+      <div class="avatar">DW</div>
+    </div>
+  </header>
+
+  <!-- Sidebar -->
+  <aside class="nav">
+    <div class="group">Main</div>
+    <a href="Kinetic Console.html#dashboard">⊞ Dashboard</a>
+    <a href="Kinetic Console.html#inmates">👤 Inmates</a>
+    <div class="group">Messaging</div>
+    <a href="Requests.html" class="active">💬 Inbox / Requests</a>
+    <a href="Kinetic Console.html#messaging">📤 Sent</a>
+    <div class="group">Admin</div>
+    <a href="Kinetic Console.html#admin-facilities">🏛 Facilities</a>
+    <a href="Kinetic Console.html#admin-users">👥 Users</a>
+    <div class="group">Reports</div>
+    <a href="Kinetic Console.html#reports-callsummary">📊 Call Summary</a>
+    <a href="Kinetic Console.html#reports-inmgmt">📋 Inmate Mgmt</a>
+    <div class="group">System</div>
+    <a href="Kinetic Console.html#monitoring">📡 Monitoring</a>
+    <a href="Kinetic Console.html#help">📄 Help / Docs</a>
+    <a href="Kinetic Console.html#trouble">🎫 Submit Ticket</a>
+  </aside>
+
+  <!-- Main -->
+  <main>
+
+    <!-- SLA Banner -->
+    <div class="sla-banner" id="slaBanner">
+      <div class="msg">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <strong>SLA Overdue</strong> — This request has been unanswered for <strong>3 days, 4 hours</strong>. Target response time is 24 hours.
+      </div>
+      <button class="dismiss" onclick="document.getElementById('slaBanner').classList.add('hidden')">✕</button>
+    </div>
+
+    <div class="main-body">
+
+      <!-- Breadcrumb row -->
+      <div class="top-row">
+        <div class="crumbs">
+          <a href="Requests.html">Requests</a> › <strong>REQ-00847</strong>
+        </div>
+        <div class="req-nav">
+          <button class="btn" onclick="history.back()">← Back</button>
+          <button class="btn" onclick="window.location.href='Requests.html'">⊞ All Requests</button>
+          <button class="btn" title="Previous request"><kbd>←</kbd></button>
+          <button class="btn" title="Next request"><kbd>→</kbd></button>
+        </div>
+      </div>
+
+      <div class="grid">
+
+        <!-- Left column -->
+        <div>
+
+          <!-- Request hero -->
+          <div class="panel" style="margin-bottom:16px">
+            <div class="hero">
+              <div>
+                <h1>WYKOFF, FRANCIS</h1>
+                <div class="meta">
+                  <span>REQ-00847</span>
+                  <span>·</span>
+                  <span><b>Facility:</b> Calhoun County Jail</span>
+                  <span>·</span>
+                  <span><b>Submitted:</b> Apr 23, 2026, 9:14 AM</span>
+                  <span>·</span>
+                  <span><b>Assigned:</b> D. Weber</span>
+                </div>
+                <div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                  <span class="badge unanswered">● Unanswered</span>
+                  <span class="badge urgent">🔴 Urgent</span>
+                  <span style="font-size:12px;color:var(--muted)">Category: <b>Medical</b></span>
+                </div>
+              </div>
+              <div style="text-align:right;flex-shrink:0">
+                <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Inmate ID</div>
+                <div style="font-size:18px;font-weight:700;font-family:ui-monospace,monospace">#WY-4421</div>
+              </div>
+            </div>
+
+            <!-- Message fields -->
+            <div class="msg-body">
+              <div class="field-row">
+                <div class="k">Subject</div>
+                <div class="v"><strong>Request for Medical Attention — Persistent Headaches</strong></div>
+              </div>
+              <div class="field-row">
+                <div class="k">Message</div>
+                <div class="v" style="line-height:1.7">I have been experiencing severe headaches for the past 5 days that will not go away. I have asked the floor officer twice but have not been seen by medical. The pain is getting worse and affecting my ability to sleep. I am requesting immediate medical evaluation.</div>
+              </div>
+              <div class="field-row">
+                <div class="k">Submitted Via</div>
+                <div class="v">Tablet Kiosk — Block D</div>
+              </div>
+              <div class="field-row">
+                <div class="k">Language</div>
+                <div class="v">English</div>
+              </div>
+              <div class="field-row">
+                <div class="k">Attachments</div>
+                <div class="v" style="color:var(--muted);font-style:italic">None</div>
+              </div>
+              <div class="disclaimer">
+                ⚠️ This message was submitted through a monitored kiosk. All communications are subject to facility policy review.
+              </div>
+            </div>
+
+            <!-- Reply thread -->
+            <div class="thread" id="thread">
+              <!-- Replies rendered by JS -->
+            </div>
+
+            <!-- Composer -->
+            <div class="composer">
+              <div class="composer-tabs">
+                <button class="composer-tab active" id="tabReply" onclick="switchTab('reply', this)">Reply to Inmate</button>
+                <button class="composer-tab" id="tabNote" onclick="switchTab('note', this)">🔒 Staff Note</button>
+              </div>
+              <div id="paneReply">
+                <textarea id="replyText" placeholder="Type your reply to the inmate…" oninput="updateCounter('replyText','replyCount',500)"></textarea>
+                <div class="composer-foot">
+                  <div class="left">
+                    <select class="select" id="replyTemplate" onchange="applyTemplate()">
+                      <option value="">Insert template…</option>
+                      <option value="medical">Medical — Acknowledged</option>
+                      <option value="review">Under Review</option>
+                      <option value="resolved">Issue Resolved</option>
+                      <option value="forward">Forwarded to Staff</option>
+                    </select>
+                    <span class="char-count" id="replyCount">0 / 500</span>
+                  </div>
+                  <div style="display:flex;gap:8px">
+                    <button class="btn" onclick="sendReply(false)">Send Reply</button>
+                    <button class="btn primary" onclick="sendReply(true)">Send &amp; Close</button>
+                  </div>
+                </div>
+              </div>
+              <div id="paneNote" style="display:none">
+                <textarea id="noteText" placeholder="Add a private staff note (not visible to inmate)…" oninput="updateCounter('noteText','noteCount',1000)" style="background:#fffbeb;border-color:#fde68a"></textarea>
+                <div class="composer-foot">
+                  <div class="left">
+                    <span class="char-count" id="noteCount">0 / 1000</span>
+                  </div>
+                  <button class="btn amber" onclick="sendNote()">Save Staff Note</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action bar -->
+          <div class="action-bar">
+            <div class="left">
+              <button class="btn" onclick="reassign()">↗ Reassign</button>
+              <button class="btn" onclick="escalate()">⬆ Escalate</button>
+              <button class="btn" onclick="forwardToFacility()">📤 Forward to Facility</button>
+              <button class="btn" onclick="markResolved()">✓ Mark Resolved</button>
+            </div>
+            <button class="btn danger" onclick="confirmClose()">✕ Close &amp; Archive</button>
+          </div>
+
+        </div>
+
+        <!-- Right column (sidebar) -->
+        <div style="display:flex;flex-direction:column;gap:16px">
+
+          <!-- Request details -->
+          <div class="panel">
+            <h2>Request Details</h2>
+            <div class="sidebox">
+              <h3>Inmate Info</h3>
+              <div class="kv"><span class="k">Name</span><span class="v">Wykoff, Francis</span></div>
+              <div class="kv"><span class="k">ID</span><span class="v">#WY-4421</span></div>
+              <div class="kv"><span class="k">Facility</span><span class="v">Calhoun County</span></div>
+              <div class="kv"><span class="k">Housing</span><span class="v">Block D, Cell 14</span></div>
+              <div class="kv"><span class="k">Status</span><span class="v">In Custody</span></div>
+            </div>
+            <div class="sidebox">
+              <h3>Request Metadata</h3>
+              <div class="kv"><span class="k">Priority</span><span class="v" style="color:var(--red);font-weight:600">Urgent</span></div>
+              <div class="kv"><span class="k">Category</span><span class="v">Medical</span></div>
+              <div class="kv"><span class="k">Assigned To</span><span class="v">D. Weber</span></div>
+              <div class="kv"><span class="k">SLA Target</span><span class="v" style="color:var(--red)">24 hrs ⚠ Overdue</span></div>
+              <div class="kv"><span class="k">Response #</span><span class="v">0 replies</span></div>
+            </div>
+          </div>
+
+          <!-- Timeline -->
+          <div class="panel">
+            <h2>Activity Timeline</h2>
+            <div class="sidebox">
+              <div class="timeline">
+                <div class="tl-item">
+                  <div class="when">Apr 23, 9:14 AM</div>
+                  <div class="what">Request submitted via kiosk</div>
+                </div>
+                <div class="tl-item">
+                  <div class="when">Apr 23, 9:18 AM</div>
+                  <div class="what">Auto-assigned to D. Weber</div>
+                </div>
+                <div class="tl-item">
+                  <div class="when">Apr 23, 10:00 AM</div>
+                  <div class="what">SLA clock started (24 hr)</div>
+                </div>
+                <div class="tl-item">
+                  <div class="when">Apr 24, 10:00 AM</div>
+                  <div class="what" style="color:var(--red);font-weight:500">⚠ SLA deadline passed</div>
+                </div>
+                <div class="tl-item">
+                  <div class="when">Apr 27, 8:42 AM</div>
+                  <div class="what">Viewed by D. Weber</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Related requests -->
+          <div class="panel">
+            <h2>Related Requests <span style="font-size:12px;color:var(--muted);font-weight:400">from same inmate</span></h2>
+            <div class="sidebox">
+              <a class="related-item" href="#">
+                <div class="r-id">REQ-00791</div>
+                <div class="r-subj">Medication refill request</div>
+                <div class="r-meta">Apr 10, 2026 · <span style="color:var(--green)">Closed</span></div>
+              </a>
+              <a class="related-item" href="#">
+                <div class="r-id">REQ-00734</div>
+                <div class="r-subj">Grievance — meal quality</div>
+                <div class="r-meta">Mar 28, 2026 · <span style="color:var(--green)">Closed</span></div>
+              </a>
+              <a class="related-item" href="#">
+                <div class="r-id">REQ-00612</div>
+                <div class="r-subj">Request for legal call</div>
+                <div class="r-meta">Feb 14, 2026 · <span style="color:var(--accent)">Replied</span></div>
+              </a>
+              <div style="text-align:center;margin-top:4px">
+                <a href="Requests.html?inmate=WY-4421" style="font-size:12px;color:var(--accent);text-decoration:none">View all requests from this inmate →</a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Close & Archive Modal -->
+<div class="modal-overlay hidden" id="closeModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Close &amp; Archive Request?</h3>
+      <button class="close-x" onclick="document.getElementById('closeModal').classList.add('hidden')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p>This will mark the request as <strong>Closed</strong> and move it to the archive. The inmate will receive a notification if no reply was sent.</p>
+      <label>Resolution note (optional)</label>
+      <textarea id="closeNote" placeholder="e.g. Forwarded to medical staff, inmate seen on Apr 27…"></textarea>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="document.getElementById('closeModal').classList.add('hidden')">Cancel</button>
+      <button class="btn danger" onclick="doClose()">Close &amp; Archive</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast hidden" id="toast"></div>
+
+<script>
+  /* ── Tab switching ── */
+  function switchTab(name, btn) {
+    document.getElementById('paneReply').style.display = name === 'reply' ? '' : 'none';
+    document.getElementById('paneNote').style.display = name === 'note' ? '' : 'none';
+    document.querySelectorAll('.composer-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  /* ── Character counter ── */
+  function updateCounter(taId, countId, max) {
+    const len = document.getElementById(taId).value.length;
+    document.getElementById(countId).textContent = len + ' / ' + max;
+    document.getElementById(countId).style.color = len > max * 0.9 ? 'var(--red)' : 'var(--muted)';
+  }
+
+  /* ── Template insertion ── */
+  function applyTemplate() {
+    const sel = document.getElementById('replyTemplate');
+    const ta = document.getElementById('replyText');
+    const templates = {
+      medical: 'Thank you for reaching out. Your medical request has been acknowledged and forwarded to the medical team. You will be seen as soon as possible.',
+      review: 'Your request is currently under review by facility staff. We will follow up with you shortly.',
+      resolved: 'This matter has been reviewed and resolved. Please submit a new request if you have further concerns.',
+      forward: 'Your request has been forwarded to the appropriate staff member who will follow up with you directly.'
+    };
+    if (sel.value && templates[sel.value]) {
+      ta.value = templates[sel.value];
+      updateCounter('replyText', 'replyCount', 500);
+    }
+    sel.value = '';
+  }
+
+  /* ── Thread rendering ── */
+  const replies = [];
+
+  function renderThread() {
+    const thread = document.getElementById('thread');
+    if (replies.length === 0) { thread.innerHTML = ''; return; }
+    thread.innerHTML = replies.map(r => `
+      <div class="thread-msg ${r.type === 'note' ? 'note' : ''}">
+        <div class="t-head">
+          <div class="t-avatar ${r.type === 'note' ? 'staff' : 'staff'}">${r.initials}</div>
+          <div class="t-name">${r.name}</div>
+          <div class="t-time">${r.time}</div>
+          ${r.type === 'reply' ? '<span class="badge replied" style="font-size:11px;padding:2px 8px">Sent to Inmate</span>' : ''}
+        </div>
+        <div class="t-body">${r.body}</div>
+      </div>
+    `).join('');
+  }
+
+  function now() {
+    return new Date().toLocaleString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' });
+  }
+
+  /* ── Send reply ── */
+  function sendReply(andClose) {
+    const ta = document.getElementById('replyText');
+    const txt = ta.value.trim();
+    if (!txt) { showToast('Please enter a reply before sending.'); return; }
+    replies.push({ type:'reply', initials:'DW', name:'D. Weber', time: now(), body: txt });
+    ta.value = '';
+    updateCounter('replyText', 'replyCount', 500);
+    renderThread();
+    // Update status badge
+    document.querySelector('.badge.unanswered').className = 'badge replied';
+    document.querySelector('.badge.replied').textContent = '● Replied';
+    document.getElementById('slaBanner').classList.add('hidden');
+    if (andClose) {
+      showToast('Reply sent. Request closed.');
+      setTimeout(() => { window.location.href = 'Requests.html'; }, 1500);
+    } else {
+      showToast('Reply sent to inmate.');
+    }
+  }
+
+  /* ── Send staff note ── */
+  function sendNote() {
+    const ta = document.getElementById('noteText');
+    const txt = ta.value.trim();
+    if (!txt) { showToast('Please enter a note.'); return; }
+    replies.push({ type:'note', initials:'DW', name:'D. Weber', time: now(), body: txt });
+    ta.value = '';
+    updateCounter('noteText', 'noteCount', 1000);
+    renderThread();
+    showToast('Staff note saved.');
+  }
+
+  /* ── Action bar ── */
+  function reassign() { showToast('Reassignment workflow coming soon.'); }
+  function escalate() { showToast('Request escalated to supervisor.'); }
+  function forwardToFacility() { showToast('Request forwarded to facility coordinator.'); }
+  function markResolved() {
+    document.querySelector('.badge.unanswered, .badge.replied').className = 'badge closed';
+    document.querySelector('.badge.closed').textContent = '✓ Closed';
+    document.getElementById('slaBanner').classList.add('hidden');
+    showToast('Request marked as resolved.');
+  }
+
+  /* ── Close modal ── */
+  function confirmClose() {
+    document.getElementById('closeModal').classList.remove('hidden');
+  }
+  function doClose() {
+    document.getElementById('closeModal').classList.add('hidden');
+    showToast('Request closed and archived.');
+    setTimeout(() => { window.location.href = 'Requests.html'; }, 1500);
+  }
+
+  /* ── Toast ── */
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.remove('hidden');
+    clearTimeout(t._to);
+    t._to = setTimeout(() => t.classList.add('hidden'), 3000);
+  }
+
+  /* Keyboard shortcuts */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') document.getElementById('closeModal').classList.add('hidden');
+  });
+
+  /* Close modal on overlay click */
+  document.getElementById('closeModal').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.add('hidden');
+  });
+</script>
+</body>
+</html>
